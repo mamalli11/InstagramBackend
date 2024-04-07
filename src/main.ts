@@ -8,7 +8,7 @@ async function bootstrap() {
 	SwaggerConfigInit(app);
 	app.use(cookieParser(process.env.COOKIE_SECRET));
 	const { PORT } = process.env;
-	await app.listen(PORT, () => {
+	await app.listen(PORT, "0.0.0.0", () => {
 		console.log(`http://localhost:${PORT} ✅`);
 		console.log(`swagger => http://localhost:${PORT}/swagger ✅`);
 	});

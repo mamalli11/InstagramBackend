@@ -1,6 +1,8 @@
-import { BaseEntity } from "src/common/abstracts/base.entity";
+import { Column, CreateDateColumn, Entity, OneToOne, UpdateDateColumn } from "typeorm";
+
+import { UserEntity } from "./user.entity";
 import { EntityName } from "src/common/enums/entity.enum";
-import { Column, CreateDateColumn, Entity, UpdateDateColumn } from "typeorm";
+import { BaseEntity } from "src/common/abstracts/base.entity";
 
 @Entity(EntityName.Profile)
 export class ProfileEntity extends BaseEntity {
@@ -36,4 +38,10 @@ export class ProfileEntity extends BaseEntity {
 
 	@UpdateDateColumn()
 	updated_at: Date;
+
+	@Column({ nullable: true })
+	userId: number;
+
+	@OneToOne(() => UserEntity, (user) => user.profile, { onDelete: "CASCADE" })
+	user: UserEntity;
 }

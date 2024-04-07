@@ -1,17 +1,11 @@
-import { BaseEntity } from "src/common/abstracts/base.entity";
-import {
-	Column,
-	CreateDateColumn,
-	Entity,
-	JoinColumn,
-	OneToMany,
-	OneToOne,
-	PrimaryGeneratedColumn,
-	UpdateDateColumn,
-} from "typeorm";
-import { OtpEntity } from "./otp.entity";
+import { Column, CreateDateColumn, Entity, JoinColumn, OneToOne, UpdateDateColumn } from "typeorm";
 
-@Entity()
+import { OtpEntity } from "./otp.entity";
+import { ProfileEntity } from "./profile.entity";
+import { EntityName } from "src/common/enums/entity.enum";
+import { BaseEntity } from "src/common/abstracts/base.entity";
+
+@Entity(EntityName.User)
 export class UserEntity extends BaseEntity {
 	@Column({ unique: true })
 	username: string;
@@ -22,7 +16,7 @@ export class UserEntity extends BaseEntity {
 	@Column({ unique: true, nullable: true })
 	phone: string;
 
-	@Column()
+	@Column({ select: false })
 	password: string;
 
 	@Column({ default: false })
@@ -31,10 +25,20 @@ export class UserEntity extends BaseEntity {
 	@Column({ default: false })
 	is_verified: boolean;
 
-    otpId: number;
+	@Column({ default: true })
+	is_otp: boolean;
+
+	@Column({ nullable: true })
+	otpId: number;
 	@OneToOne(() => OtpEntity, (otp) => otp.user, { nullable: true })
 	@JoinColumn()
 	otp: OtpEntity;
+
+	@Column({ nullable: true })
+	profileId: number;
+	@OneToOne(() => ProfileEntity, (profile) => profile.user, { nullable: true })
+	@JoinColumn({ name: "profileId" })
+	profile: ProfileEntity;
 
 	@CreateDateColumn()
 	created_at: Date;

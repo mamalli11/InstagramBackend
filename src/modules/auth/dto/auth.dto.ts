@@ -1,7 +1,7 @@
 import { IsEnum, IsString, Length, Matches } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
 
-import { AuthMethod } from "../enums/method.enum";
+import { AuthMethod, RegisterMethod } from "../enums/method.enum";
 import { ConfirmedPassword } from "src/common/decorators/password.decorators";
 
 export class AuthDto {
@@ -40,9 +40,9 @@ export class RegisterDto {
 	@IsString()
 	@ConfirmedPassword("password")
 	confirm_password: string;
-	@ApiProperty({ enum: AuthMethod })
-	@IsEnum(AuthMethod)
-	method: AuthMethod;
+	@ApiProperty({ enum: RegisterMethod })
+	@IsEnum(RegisterMethod)
+	method: RegisterMethod;
 }
 
 export class CheckOtpDto {

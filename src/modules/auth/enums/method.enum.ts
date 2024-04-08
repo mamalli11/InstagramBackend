@@ -3,3 +3,8 @@ export enum AuthMethod {
 	Email = "email",
 	Phone = "phone",
 }
+
+export enum RegisterMethod {
+	Email = "email",
+	Phone = "phone",
+}

@@ -16,7 +16,7 @@ import { compareSync, genSaltSync, hashSync } from "bcrypt";
 
 import { TokenService } from "./tokens.service";
 import { AuthResponse } from "./types/response";
-import { AuthMethod } from "./enums/method.enum";
+import { AuthMethod, RegisterMethod } from "./enums/method.enum";
 import { AuthDto, RegisterDto } from "./dto/auth.dto";
 import { OtpEntity } from "../user/entities/otp.entity";
 import { UserEntity } from "../user/entities/user.entity";
@@ -53,8 +53,6 @@ export class AuthService {
 		const validUsername = this.usernameValidator(method, emailOrPhone);
 		let user: UserEntity = await this.checkExistUser(method, validUsername);
 		if (user) throw new ConflictException(AuthMessage.AlreadyExistAccount);
-		if (method === AuthMethod.Username)
-			throw new BadRequestException(BadRequestMessage.InValidRegisterData);
 
 		user = this.userRepository.create({
 			[method]: emailOrPhone,
@@ -119,7 +117,7 @@ export class AuthService {
 			accessToken,
 		};
 	}
-	async checkExistUser(method: AuthMethod, username: string) {
+	async checkExistUser(method: AuthMethod|RegisterMethod, username: string) {
 		let user: UserEntity;
 		if (method === AuthMethod.Phone) {
 			user = await this.userRepository.findOneBy({ phone: username });
@@ -136,7 +134,7 @@ export class AuthService {
 		const salt = genSaltSync(10);
 		return hashSync(password, salt);
 	}
-	usernameValidator(method: AuthMethod, username: string) {
+	usernameValidator(method: AuthMethod|RegisterMethod, username: string) {
 		switch (method) {
 			case AuthMethod.Email:
 				if (isEmail(username)) return username;

@@ -14,6 +14,7 @@ import { EntityName } from "src/common/enums/entity.enum";
 import { BaseEntity } from "src/common/abstracts/base.entity";
 import { PostEntity } from "src/modules/post/entities/post.entity";
 import { CommentEntity } from "src/modules/comment/entities/comment.entity";
+import { LikeEntity } from "./like.entity";
 
 @Entity(EntityName.User)
 export class UserEntity extends BaseEntity {
@@ -61,6 +62,12 @@ export class UserEntity extends BaseEntity {
 	@OneToMany(() => CommentEntity, (comment) => comment.post)
 	@JoinColumn({ name: "commentId" })
 	comments: CommentEntity[];
+
+	@Column({ nullable: true })
+	likeId: number;
+	@OneToMany(() => LikeEntity, (like) => like.post)
+	@JoinColumn({ name: "likeId" })
+	likes: LikeEntity[];
 
 	@CreateDateColumn()
 	created_at: Date;

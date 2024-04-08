@@ -15,6 +15,7 @@ import { EntityName } from "src/common/enums/entity.enum";
 import { BaseEntity } from "src/common/abstracts/base.entity";
 import { UserEntity } from "src/modules/user/entities/user.entity";
 import { CommentEntity } from "src/modules/comment/entities/comment.entity";
+import { LikeEntity } from "src/modules/user/entities/like.entity";
 
 @Entity(EntityName.Post)
 export class PostEntity extends BaseEntity {
@@ -33,8 +34,11 @@ export class PostEntity extends BaseEntity {
 	@JoinColumn({ name: "commentId" })
 	comments: CommentEntity[];
 
-	// @OneToMany(() => Like, like => like.post)
-	// likes: Like[];
+	@Column({ nullable: true })
+	likeId: number;
+	@OneToMany(() => LikeEntity, (like) => like.post)
+	@JoinColumn({ name: "likeId" })
+	likes: LikeEntity[];
 
 	@Column({ nullable: true })
 	mediaId: number;

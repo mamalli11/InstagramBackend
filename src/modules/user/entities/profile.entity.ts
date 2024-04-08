@@ -33,15 +33,15 @@ export class ProfileEntity extends BaseEntity {
 	@Column({ default: "en" })
 	language: string;
 
-	@CreateDateColumn()
-	created_at: Date;
-
-	@UpdateDateColumn()
-	updated_at: Date;
-
 	@Column({ nullable: true })
 	userId: number;
 
 	@OneToOne(() => UserEntity, (user) => user.profile, { onDelete: "CASCADE" })
 	user: UserEntity;
+
+	@CreateDateColumn()
+	created_at: Date;
+
+	@UpdateDateColumn()
+	updated_at: Date;
 }

@@ -5,4 +5,5 @@ export enum EntityName {
 	Post = "post",
 	Media = "media",
 	Album = "album",
+	Comment = "comment",
 }

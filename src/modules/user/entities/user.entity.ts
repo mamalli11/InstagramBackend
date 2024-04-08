@@ -1,9 +1,10 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, OneToOne, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, OneToMany, OneToOne, UpdateDateColumn } from "typeorm";
 
 import { OtpEntity } from "./otp.entity";
 import { ProfileEntity } from "./profile.entity";
 import { EntityName } from "src/common/enums/entity.enum";
 import { BaseEntity } from "src/common/abstracts/base.entity";
+import { PostEntity } from "src/modules/post/entities/post.entity";
 
 @Entity(EntityName.User)
 export class UserEntity extends BaseEntity {
@@ -40,14 +41,17 @@ export class UserEntity extends BaseEntity {
 	@JoinColumn({ name: "profileId" })
 	profile: ProfileEntity;
 
+	@Column({ nullable: true })
+	postId: number;
+	@OneToMany(() => PostEntity, (post) => post.user)
+	@JoinColumn({ name: "postId" })
+	posts: PostEntity[];
+
 	@CreateDateColumn()
 	created_at: Date;
 
 	@UpdateDateColumn()
 	updated_at: Date;
-
-	// @OneToMany(() => Post, (post) => post.user)
-	// posts: Post[];
 
 	// @OneToMany(() => Follow, (follow) => follow.follower)
 	// followers: Follow[];

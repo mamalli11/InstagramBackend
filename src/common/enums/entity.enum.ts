@@ -6,4 +6,5 @@ export enum EntityName {
 	Media = "media",
 	Album = "album",
 	Comment = "comment",
+	Story = "story",
 }

@@ -15,6 +15,7 @@ import { BaseEntity } from "src/common/abstracts/base.entity";
 import { PostEntity } from "src/modules/post/entities/post.entity";
 import { CommentEntity } from "src/modules/comment/entities/comment.entity";
 import { LikeEntity } from "./like.entity";
+import { StoryEntity } from "src/modules/story/entities/story.entity";
 
 @Entity(EntityName.User)
 export class UserEntity extends BaseEntity {
@@ -68,6 +69,12 @@ export class UserEntity extends BaseEntity {
 	@OneToMany(() => LikeEntity, (like) => like.post)
 	@JoinColumn({ name: "likeId" })
 	likes: LikeEntity[];
+
+	@Column({ nullable: true })
+	StoryId: number;
+	@OneToMany(() => StoryEntity, (Story) => Story.user)
+	@JoinColumn({ name: "StoryId" })
+	stories: StoryEntity[];
 
 	@CreateDateColumn()
 	created_at: Date;

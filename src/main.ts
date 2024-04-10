@@ -1,11 +1,15 @@
 import { NestFactory } from "@nestjs/core";
+import * as cookieParser from "cookie-parser";
+import { ValidationPipe } from "@nestjs/common";
 import { AppModule } from "./modules/app/app.module";
 import { SwaggerConfigInit } from "./config/swagger.config";
-import * as cookieParser from "cookie-parser";
+import { NestExpressApplication } from "@nestjs/platform-express";
 
 async function bootstrap() {
-	const app = await NestFactory.create(AppModule);
+	const app = await NestFactory.create<NestExpressApplication>(AppModule);
 	SwaggerConfigInit(app);
+	app.useStaticAssets("public");
+	app.useGlobalPipes(new ValidationPipe());
 	app.use(cookieParser(process.env.COOKIE_SECRET));
 	const { PORT } = process.env;
 	await app.listen(PORT, "0.0.0.0", () => {

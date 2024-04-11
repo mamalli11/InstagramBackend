@@ -1,26 +1,68 @@
-import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { ConflictException, Inject, Injectable, Scope } from "@nestjs/common";
+import { Request } from "express";
+import { REQUEST } from "@nestjs/core";
+import { isDate } from "class-validator";
+import { Repository } from "typeorm";
 
-@Injectable()
+import { UpdateUserDto } from "./dto/profile.dto";
+import { ProfileImages } from "./types/files";
+import { UserEntity } from "./entities/user.entity";
+import { ProfileEntity } from "./entities/profile.entity";
+import { InjectRepository } from "@nestjs/typeorm";
+import { AuthService } from "../auth/auth.service";
+import { TokenService } from "../auth/tokens.service";
+import { ConflictMessage, PublicMessage } from "src/common/enums/message.enum";
+import { GenderType } from "./enums/profile.enum";
+
+@Injectable({ scope: Scope.REQUEST })
 export class UserService {
-  create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
-  }
+	constructor(
+		@InjectRepository(UserEntity) private userRepository: Repository<UserEntity>,
+		@InjectRepository(ProfileEntity) private profileRepository: Repository<ProfileEntity>,
+		@Inject(REQUEST) private request: Request,
+		private authService: AuthService,
+		private tokenService: TokenService,
+	) {}
+	findOne(id: number) {
+		return `This action returns a #${id} user`;
+	}
 
-  findAll() {
-    return `This action returns all user`;
-  }
+	async updateInfo(file: Express.Multer.File, updateUserDto: UpdateUserDto) {
+		if (file) updateUserDto.profile_picture = file?.path?.slice(7);
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
-  }
+		const { id: userId, profileId } = this.request.user;
+		let profile = await this.profileRepository.findOneBy({ userId });
+		let user = await this.userRepository.findOneBy({ id: userId });
+		const { bio, birthday, gender, username, profile_picture, fullname, website } = updateUserDto;
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
-  }
+		if (profile) {
+			if (username) if (this.changeUsername(username)) user.username = username;
+			if (fullname) profile.fullname = fullname;
+			if (bio) profile.bio = bio;
+			if (website) profile.website = website;
+			if (birthday && isDate(new Date(birthday))) profile.birthday = new Date(birthday);
+			if (gender && Object.values(GenderType as any).includes(gender)) profile.gender = gender;
+			if (profile_picture) profile.profile_picture = profile_picture;
+			profile = await this.profileRepository.save(profile);
+		}
+		if (!profileId) {
+			await this.userRepository.update({ id: userId }, { profileId: profile.id });
+		}
+		return { message: PublicMessage.Updated };
+	}
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
-  }
+	remove(id: number) {
+		return `This action removes a #${id} user`;
+	}
+	async changeUsername(username: string) {
+		const { id } = this.request.user;
+		const user = await this.userRepository.findOneBy({ username });
+		if (user && user?.id !== id) {
+			throw new ConflictException(ConflictMessage.Username);
+		} else if (user && user.id == id) {
+			return { message: PublicMessage.Updated };
+		}
+		await this.userRepository.update({ id }, { username });
+		return { message: PublicMessage.Updated };
+	}
 }

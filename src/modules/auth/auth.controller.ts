@@ -15,7 +15,7 @@ export class AuthController {
 	@Post("login")
 	@ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
 	userExistence(@Body() authDto: AuthDto, @Res() res: Response) {
-		const result = this.authService.login(authDto, res);
+		return this.authService.login(authDto, res);
 	}
 	@Post("register")
 	@ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)

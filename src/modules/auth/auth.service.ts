@@ -6,23 +6,24 @@ import {
 	Scope,
 	UnauthorizedException,
 } from "@nestjs/common";
-import { Request, Response } from "express";
 import { randomInt } from "crypto";
 import { Repository } from "typeorm";
 import { REQUEST } from "@nestjs/core";
+import { Request, Response } from "express";
 import { InjectRepository } from "@nestjs/typeorm";
 import { isEmail, isMobilePhone } from "class-validator";
 import { compareSync, genSaltSync, hashSync } from "bcrypt";
 
 import { TokenService } from "./tokens.service";
 import { AuthResponse } from "./types/response";
-import { AuthMethod, RegisterMethod } from "./enums/method.enum";
 import { AuthDto, RegisterDto } from "./dto/auth.dto";
 import { OtpEntity } from "../user/entities/otp.entity";
 import { UserEntity } from "../user/entities/user.entity";
 import { CookieKeys } from "src/common/enums/cookie.enum";
 import { ProfileEntity } from "../user/entities/profile.entity";
+import { AuthMethod, RegisterMethod } from "./enums/method.enum";
 import { AuthMessage, BadRequestMessage, PublicMessage } from "src/common/enums/message.enum";
+import { CookiesOptionsToken } from "src/common/utils/cookie.util";
 
 @Injectable({ scope: Scope.REQUEST })
 export class AuthService {
@@ -38,6 +39,7 @@ export class AuthService {
 		const { method, password, username } = authDto;
 		const validUsername = this.usernameValidator(method, username);
 		let user: UserEntity = await this.checkExistUser(method, validUsername);
+
 		if (!user) throw new UnauthorizedException(AuthMessage.NotFoundAccount);
 		if (!compareSync(password, user.password))
 			throw new UnauthorizedException("email or password is incorrect");
@@ -73,14 +75,8 @@ export class AuthService {
 	}
 	async sendResponse(res: Response, result: AuthResponse) {
 		const { token, code } = result;
-		res.cookie(CookieKeys.OTP, token, {
-			httpOnly: true,
-			expires: new Date(Date.now() + 1000 * 60 * 2),
-		});
-		return res.json({
-			message: PublicMessage.SentOtp,
-			code,
-		});
+		res.cookie(CookieKeys.OTP, token, CookiesOptionsToken());
+		return res.json({ message: PublicMessage.SentOtp, code });
 	}
 	async saveOtp(userId: number) {
 		const code = randomInt(10000, 99999).toString();
@@ -105,9 +101,9 @@ export class AuthService {
 		if (!token) throw new UnauthorizedException(AuthMessage.ExpiredCode);
 		const { userId } = this.tokenService.verifyOtpToken(token);
 		const otp = await this.otpRepository.findOneBy({ userId });
-		console.log(otp);
+		
 		if (!otp) throw new UnauthorizedException(AuthMessage.LoginAgain);
-		console.log("*************************");
+	
 		const now = new Date();
 		if (otp.expiresIn < now) throw new UnauthorizedException(AuthMessage.ExpiredCode);
 		if (otp.code !== code) throw new UnauthorizedException(AuthMessage.TryAgain);
@@ -117,7 +113,7 @@ export class AuthService {
 			accessToken,
 		};
 	}
-	async checkExistUser(method: AuthMethod|RegisterMethod, username: string) {
+	async checkExistUser(method: AuthMethod | RegisterMethod, username: string) {
 		let user: UserEntity;
 		if (method === AuthMethod.Phone) {
 			user = await this.userRepository.findOneBy({ phone: username });
@@ -134,7 +130,7 @@ export class AuthService {
 		const salt = genSaltSync(10);
 		return hashSync(password, salt);
 	}
-	usernameValidator(method: AuthMethod|RegisterMethod, username: string) {
+	usernameValidator(method: AuthMethod | RegisterMethod, username: string) {
 		switch (method) {
 			case AuthMethod.Email:
 				if (isEmail(username)) return username;

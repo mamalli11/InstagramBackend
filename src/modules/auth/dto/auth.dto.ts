@@ -1,5 +1,5 @@
-import { IsEnum, IsString, Length, Matches } from "class-validator";
 import { ApiProperty } from "@nestjs/swagger";
+import { IsEnum, IsString, Length, Matches } from "class-validator";
 
 import { AuthMethod, RegisterMethod } from "../enums/method.enum";
 import { ConfirmedPassword } from "src/common/decorators/password.decorators";
@@ -7,7 +7,7 @@ import { ConfirmedPassword } from "src/common/decorators/password.decorators";
 export class AuthDto {
 	@ApiProperty()
 	@IsString()
-	@Length(3, 100)
+	@Length(3, 30)
 	username: string;
 	@ApiProperty()
 	@IsString()
@@ -21,7 +21,7 @@ export class AuthDto {
 export class RegisterDto {
 	@ApiProperty()
 	@IsString()
-	@Length(4, 100)
+	@Length(4, 30)
 	@Matches(/^[a-zA-Z0-9._]+$/, { message: "username format is invalid" })
 	username: string;
 	@ApiProperty()

@@ -7,4 +7,5 @@ export enum EntityName {
 	Album = "album",
 	Comment = "comment",
 	Story = "story",
+	Like = "like",
 }

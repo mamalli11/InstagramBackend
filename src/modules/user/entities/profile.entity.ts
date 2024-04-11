@@ -12,7 +12,7 @@ export class ProfileEntity extends BaseEntity {
 	@Column({ nullable: true, length: 150 })
 	bio: string;
 
-	@Column({ nullable: true })
+	@Column({ default: "/default/avatar-default.png" })
 	profile_picture: string;
 
 	@Column({ nullable: true })
@@ -25,9 +25,6 @@ export class ProfileEntity extends BaseEntity {
 	birthday: Date;
 
 	@Column({ nullable: true })
-	linkedin_profile: string;
-
-	@Column({ nullable: true })
 	country: string;
 
 	@Column({ default: "en" })
@@ -35,7 +32,6 @@ export class ProfileEntity extends BaseEntity {
 
 	@Column({ nullable: true })
 	userId: number;
-
 	@OneToOne(() => UserEntity, (user) => user.profile, { onDelete: "CASCADE" })
 	user: UserEntity;
 

@@ -10,7 +10,13 @@ import { ProfileEntity } from "./entities/profile.entity";
 import { InjectRepository } from "@nestjs/typeorm";
 import { AuthService } from "../auth/auth.service";
 import { TokenService } from "../auth/tokens.service";
-import { AuthMessage, BadRequestMessage, ConflictMessage, NotFoundMessage, PublicMessage } from "src/common/enums/message.enum";
+import {
+	AuthMessage,
+	BadRequestMessage,
+	ConflictMessage,
+	NotFoundMessage,
+	PublicMessage,
+} from "src/common/enums/message.enum";
 import { GenderType } from "./enums/profile.enum";
 import { CookieKeys } from "src/common/enums/cookie.enum";
 import { AuthMethod } from "../auth/enums/method.enum";
@@ -55,8 +61,11 @@ export class UserService {
 		return { message: PublicMessage.Updated };
 	}
 
-	remove(id: number) {
-		return `This action removes a #${id} user`;
+	async remove() {
+		const { id } = this.request.user;
+		await this.userRepository.delete({ id });
+		await this.profileRepository.delete({ userId: id });
+		return this.otpRepository.delete({ userId: id });
 	}
 	async changeUsername(username: string) {
 		const { id } = this.request.user;
@@ -100,12 +109,43 @@ export class UserService {
 		);
 		return { message: PublicMessage.Updated };
 	}
+	async changePhone(phone: string) {
+		const { id } = this.request.user;
+		const user = await this.userRepository.findOneBy({ phone });
+		if (user && user?.id !== id) {
+			throw new ConflictException(ConflictMessage.Phone);
+		} else if (user && user.id == id) {
+			return { message: PublicMessage.Updated };
+		}
+
+		await this.userRepository.update({ id }, { new_phone: phone });
+		const otp = await this.authService.saveOtp(id, AuthMethod.Phone);
+		const token = this.tokenService.createPhoneToken({ phone });
+		return { code: otp.code, token };
+	}
+	async verifyPhone(code: string) {
+		const { id: userId, new_phone } = this.request.user;
+		const token = this.request.cookies?.[CookieKeys.PhoneOTP];
+		if (!token) throw new BadRequestException(AuthMessage.ExpiredCode);
+		const { phone } = this.tokenService.verifyPhoneToken(token);
+		if (phone !== new_phone) throw new BadRequestException(BadRequestMessage.SomeThingWrong);
+
+		const otp = await this.checkOtp(userId, code);
+		if (otp.method !== AuthMethod.Phone)
+			throw new BadRequestException(BadRequestMessage.SomeThingWrong);
+
+		await this.userRepository.update(
+			{ id: userId },
+			{ phone, verify_phone: true, new_phone: null },
+		);
+		return { message: PublicMessage.Updated };
+	}
 	async checkOtp(userId: number, code: string) {
-        const otp = await this.otpRepository.findOneBy({userId});
-        if(!otp) throw new BadRequestException(NotFoundMessage.NotFound);
-        const now = new Date();
-        if(otp.expiresIn < now) throw new BadRequestException(AuthMessage.ExpiredCode);
-        if(otp.code !== code ) throw new BadRequestException(AuthMessage.TryAgain);
-        return otp;
-    }
+		const otp = await this.otpRepository.findOneBy({ userId });
+		if (!otp) throw new BadRequestException(NotFoundMessage.NotFound);
+		const now = new Date();
+		if (otp.expiresIn < now) throw new BadRequestException(AuthMessage.ExpiredCode);
+		if (otp.code !== code) throw new BadRequestException(AuthMessage.TryAgain);
+		return otp;
+	}
 }

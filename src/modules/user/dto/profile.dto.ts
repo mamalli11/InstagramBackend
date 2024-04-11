@@ -68,6 +68,6 @@ export class ChangePhoneDto {
 export class ChangeUsernameDto {
 	@ApiProperty()
 	@IsString()
-	@Length(3, 100)
+	@Length(4, 30)
 	username: string;
 }

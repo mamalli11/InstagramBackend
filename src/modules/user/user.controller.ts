@@ -14,7 +14,12 @@ import {
 } from "@nestjs/common";
 
 import { UserService } from "./user.service";
-import { ChangeEmailDto, UpdateUserDto } from "./dto/profile.dto";
+import {
+	ChangeEmailDto,
+	ChangePhoneDto,
+	ChangeUsernameDto,
+	UpdateUserDto,
+} from "./dto/profile.dto";
 import { AuthGuard } from "../auth/guards/auth.guard";
 import { SwaggerConsumes } from "src/common/enums/swagger-consumes.enum";
 import { FileInterceptor } from "@nestjs/platform-express";
@@ -51,9 +56,10 @@ export class UserController {
 	}
 
 	@Delete(":id")
-	remove(@Param("id") id: string) {
-		return this.userService.remove(+id);
+	remove() {
+		return this.userService.remove();
 	}
+
 	@Patch("/change-email")
 	@ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
 	async changeEmail(@Body() emailDto: ChangeEmailDto, @Res() res: Response) {
@@ -61,12 +67,34 @@ export class UserController {
 		if (message) return res.json({ message });
 
 		res.cookie(CookieKeys.EmailOTP, token, CookiesOptionsToken());
-		res.json({ code, message: PublicMessage.SentOtp });
+		res.json({ message: PublicMessage.SentOtp, code });
 	}
 
 	@Post("/verify-email-otp")
 	@ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
 	async verifyEmail(@Body() otpDto: CheckOtpDto) {
 		return this.userService.verifyEmail(otpDto.code);
+	}
+
+	@Patch("/change-phone")
+	@ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
+	async changePhone(@Body() phoneDto: ChangePhoneDto, @Res() res: Response) {
+		const { code, token, message } = await this.userService.changePhone(phoneDto.phone);
+		if (message) return res.json({ message });
+
+		res.cookie(CookieKeys.PhoneOTP, token, CookiesOptionsToken());
+		res.json({ message: PublicMessage.SentOtp, code });
+	}
+
+	@Post("/verify-phone-otp")
+	@ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
+	async verifyPhone(@Body() otpDto: CheckOtpDto) {
+		return this.userService.verifyPhone(otpDto.code);
+	}
+
+	@Patch("/change-username")
+	@ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
+	async changeUsername(@Body() usernameDto: ChangeUsernameDto) {
+		return this.userService.changeUsername(usernameDto.username);
 	}
 }

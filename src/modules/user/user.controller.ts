@@ -8,16 +8,24 @@ import {
 	UseGuards,
 	Put,
 	UseInterceptors,
+	Patch,
+	Res,
+	Post,
 } from "@nestjs/common";
 
 import { UserService } from "./user.service";
-import { UpdateUserDto } from "./dto/profile.dto";
+import { ChangeEmailDto, UpdateUserDto } from "./dto/profile.dto";
 import { AuthGuard } from "../auth/guards/auth.guard";
 import { SwaggerConsumes } from "src/common/enums/swagger-consumes.enum";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { multerStorage } from "src/common/utils/multer.util";
 import { UploadedOptionalFile } from "src/common/decorators/upload-file.decorator";
 import { ProfileImages } from "./types/files";
+import { CookiesOptionsToken } from "src/common/utils/cookie.util";
+import { CookieKeys } from "src/common/enums/cookie.enum";
+import { CheckOtpDto } from "../auth/dto/auth.dto";
+import { Response } from "express";
+import { PublicMessage } from "src/common/enums/message.enum";
 
 @Controller("user")
 @ApiTags("User")
@@ -28,8 +36,8 @@ export class UserController {
 
 	@Get("/profile")
 	@ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
-	findOne(@Param("id") id: string) {
-		return this.userService.findOne(+id);
+	findOne() {
+		return this.userService.findOne();
 	}
 
 	@Put("/profile")
@@ -45,5 +53,20 @@ export class UserController {
 	@Delete(":id")
 	remove(@Param("id") id: string) {
 		return this.userService.remove(+id);
+	}
+	@Patch("/change-email")
+	@ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
+	async changeEmail(@Body() emailDto: ChangeEmailDto, @Res() res: Response) {
+		const { code, token, message } = await this.userService.changeEmail(emailDto.email);
+		if (message) return res.json({ message });
+
+		res.cookie(CookieKeys.EmailOTP, token, CookiesOptionsToken());
+		res.json({ code, message: PublicMessage.SentOtp });
+	}
+
+	@Post("/verify-email-otp")
+	@ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
+	async verifyEmail(@Body() otpDto: CheckOtpDto) {
+		return this.userService.verifyEmail(otpDto.code);
 	}
 }

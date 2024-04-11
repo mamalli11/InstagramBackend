@@ -34,7 +34,6 @@ export class AuthService {
 		@Inject(REQUEST) private request: Request,
 		private tokenService: TokenService,
 	) {}
-
 	async login(authDto: AuthDto, res: Response) {
 		const { method, password, username } = authDto;
 		const validUsername = this.usernameValidator(method, username);
@@ -44,7 +43,7 @@ export class AuthService {
 		if (!compareSync(password, user.password))
 			throw new UnauthorizedException("email or password is incorrect");
 
-		const otp = await this.saveOtp(user.id);
+		const otp = await this.saveOtp(user.id, method);
 		const token = this.tokenService.createOtpToken({ userId: user.id });
 		const result = { token, code: otp.code };
 		return this.sendResponse(res, result);
@@ -67,7 +66,7 @@ export class AuthService {
 		profile = await this.profileRepository.save(profile);
 		await this.userRepository.update({ id: user.id }, { profileId: profile.id });
 
-		const otp = await this.saveOtp(user.id);
+		const otp = await this.saveOtp(user.id, method);
 		const token = this.tokenService.createOtpToken({ userId: user.id });
 
 		const result = { token, code: otp.code };
@@ -78,7 +77,7 @@ export class AuthService {
 		res.cookie(CookieKeys.OTP, token, CookiesOptionsToken());
 		return res.json({ message: PublicMessage.SentOtp, code });
 	}
-	async saveOtp(userId: number) {
+	async saveOtp(userId: number, method: AuthMethod | RegisterMethod) {
 		const code = randomInt(10000, 99999).toString();
 		const expiresIn = new Date(Date.now() + 1000 * 60 * 2);
 		let otp = await this.otpRepository.findOneBy({ userId });
@@ -87,8 +86,9 @@ export class AuthService {
 			existOtp = true;
 			otp.code = code;
 			otp.expiresIn = expiresIn;
+			otp.method = method;
 		} else {
-			otp = this.otpRepository.create({ code, expiresIn, userId });
+			otp = this.otpRepository.create({ code, expiresIn, userId, method });
 		}
 		otp = await this.otpRepository.save(otp);
 		if (!existOtp) {
@@ -101,26 +101,45 @@ export class AuthService {
 		if (!token) throw new UnauthorizedException(AuthMessage.ExpiredCode);
 		const { userId } = this.tokenService.verifyOtpToken(token);
 		const otp = await this.otpRepository.findOneBy({ userId });
-		
+
 		if (!otp) throw new UnauthorizedException(AuthMessage.LoginAgain);
-	
+
 		const now = new Date();
 		if (otp.expiresIn < now) throw new UnauthorizedException(AuthMessage.ExpiredCode);
 		if (otp.code !== code) throw new UnauthorizedException(AuthMessage.TryAgain);
 		const accessToken = this.tokenService.createAccessToken({ userId });
-		return {
-			message: PublicMessage.LoggedIn,
-			accessToken,
-		};
+		return { message: PublicMessage.LoggedIn, accessToken };
 	}
 	async checkExistUser(method: AuthMethod | RegisterMethod, username: string) {
 		let user: UserEntity;
+		const filterData: object = {
+			select: [
+				"id",
+				"email",
+				"password",
+				"phone",
+				"otpId",
+				"username",
+				"profileId",
+				"new_email",
+				"new_phone",
+			],
+		};
 		if (method === AuthMethod.Phone) {
-			user = await this.userRepository.findOneBy({ phone: username });
+			user = await this.userRepository.findOne({
+				where: { phone: username },
+				...filterData,
+			});
 		} else if (method === AuthMethod.Email) {
-			user = await this.userRepository.findOneBy({ email: username });
+			user = await this.userRepository.findOne({
+				where: { email: username },
+				...filterData,
+			});
 		} else if (method === AuthMethod.Username) {
-			user = await this.userRepository.findOneBy({ username });
+			user = await this.userRepository.findOne({
+				where: { username },
+				...filterData,
+			});
 		} else {
 			throw new BadRequestException(BadRequestMessage.InValidLoginData);
 		}

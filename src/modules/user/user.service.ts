@@ -1,15 +1,10 @@
-import { BadRequestException, ConflictException, Inject, Injectable, Scope } from "@nestjs/common";
 import { Request } from "express";
+import { Repository } from "typeorm";
 import { REQUEST } from "@nestjs/core";
 import { isDate } from "class-validator";
-import { Repository } from "typeorm";
-
-import { UpdateUserDto } from "./dto/profile.dto";
-import { UserEntity } from "./entities/user.entity";
-import { ProfileEntity } from "./entities/profile.entity";
 import { InjectRepository } from "@nestjs/typeorm";
-import { AuthService } from "../auth/auth.service";
-import { TokenService } from "../auth/tokens.service";
+import { BadRequestException, ConflictException, Inject, Injectable, Scope } from "@nestjs/common";
+
 import {
 	AuthMessage,
 	BadRequestMessage,
@@ -17,6 +12,11 @@ import {
 	NotFoundMessage,
 	PublicMessage,
 } from "src/common/enums/message.enum";
+import { UpdateUserDto } from "./dto/profile.dto";
+import { UserEntity } from "./entities/user.entity";
+import { ProfileEntity } from "./entities/profile.entity";
+import { AuthService } from "../auth/auth.service";
+import { TokenService } from "../auth/tokens.service";
 import { GenderType } from "./enums/profile.enum";
 import { CookieKeys } from "src/common/enums/cookie.enum";
 import { AuthMethod } from "../auth/enums/method.enum";

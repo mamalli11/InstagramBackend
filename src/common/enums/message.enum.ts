@@ -10,6 +10,7 @@ export enum AuthMessage {
 	ExpiredCode = "کد تایید منقصی شده مجددا تلاش کنید.",
 	LoginAgain = "مجددا وارد حساب کاربری خود شوید",
 	LoginIsRequired = "وارد حساب کاربری خود شوید",
+	Forbidden = "شما دسترسی لازم برای این عملیات را ندارید",
 }
 export enum NotFoundMessage {
 	NotFound = "موردی یافت نشد",
@@ -35,6 +36,7 @@ export enum PublicMessage {
 	Bookmark = "پست با موفقیت ذخیره شد",
 	UnBookmark = " پست از لیست پست ها ذخیره شده برداشته شد",
 	CreatedComment = " نظر شما با موفقیت ثبت شد",
+	Successfuly = "درخواست باموفقیت انجام شد",
 }
 export enum ConflictMessage {
 	CategoryTitle = "عنوان دسته بندی قبلا ثبت شده است",

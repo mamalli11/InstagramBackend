@@ -13,13 +13,13 @@ import {
 	Post,
 } from "@nestjs/common";
 
-import { UserService } from "./user.service";
 import {
 	ChangeEmailDto,
 	ChangePhoneDto,
 	ChangeUsernameDto,
 	UpdateUserDto,
 } from "./dto/profile.dto";
+import { UserService } from "./user.service";
 import { AuthGuard } from "../auth/guards/auth.guard";
 import { SwaggerConsumes } from "src/common/enums/swagger-consumes.enum";
 import { FileInterceptor } from "@nestjs/platform-express";
@@ -55,7 +55,7 @@ export class UserController {
 		return this.userService.updateInfo(files, updateUserDto);
 	}
 
-	@Delete(":id")
+	@Delete()
 	remove() {
 		return this.userService.remove();
 	}

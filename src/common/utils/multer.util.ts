@@ -28,7 +28,7 @@ export function multerFilename(req: Request, file: MulterFile, callback: Callbac
 	}
 }
 function isValidImageFormat(ext: string) {
-	return [".png", ".jpg", ".jpeg"].includes(ext);
+	return [".png", ".jpg", ".jpeg", ".mp4"].includes(ext);
 }
 export function multerStorage(folderName: string) {
 	return diskStorage({

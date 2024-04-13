@@ -6,12 +6,14 @@ import { BaseEntity } from "src/common/abstracts/base.entity";
 
 @Entity(EntityName.Media)
 export class MediaEntity extends BaseEntity {
-	@Column({ type: "enum", enum: ["image", "video"] })
+	@Column({ type: "enum", enum: ["image", "video"], default: "image" })
 	type: string;
 
 	@Column()
 	url: string;
 
+	@Column()
+	postId: number;
 	@ManyToOne(() => PostEntity, (post) => post.media, { onDelete: "CASCADE" })
 	post: PostEntity;
 

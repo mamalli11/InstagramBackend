@@ -100,14 +100,20 @@ export class AuthService {
 		const token = this.request.cookies?.[CookieKeys.OTP];
 		if (!token) throw new UnauthorizedException(AuthMessage.ExpiredCode);
 		const { userId } = this.tokenService.verifyOtpToken(token);
-		const otp = await this.otpRepository.findOneBy({ userId });
 
+		const otp = await this.otpRepository.findOneBy({ userId });
 		if (!otp) throw new UnauthorizedException(AuthMessage.LoginAgain);
 
 		const now = new Date();
 		if (otp.expiresIn < now) throw new UnauthorizedException(AuthMessage.ExpiredCode);
 		if (otp.code !== code) throw new UnauthorizedException(AuthMessage.TryAgain);
 		const accessToken = this.tokenService.createAccessToken({ userId });
+
+		if (otp.method === AuthMethod.Email) {
+			await this.userRepository.update({ id: userId }, { verify_email: true });
+		} else if (otp.method === AuthMethod.Phone) {
+			await this.userRepository.update({ id: userId }, { verify_phone: true });
+		}
 		return { message: PublicMessage.LoggedIn, accessToken };
 	}
 	async checkExistUser(method: AuthMethod | RegisterMethod, username: string) {

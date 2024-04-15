@@ -10,12 +10,13 @@ import {
 
 import { MediaEntity } from "./media.entity";
 import { PostStatus } from "../enums/post.enum";
+import { PostLikeEntity } from "./postLike.entity";
+import { PostCommentEntity } from "./comment.entity";
+import { PostBookmarkEntity } from "./bookmark.entity";
 import { EntityName } from "src/common/enums/entity.enum";
 import { BaseEntity } from "src/common/abstracts/base.entity";
 import { UserEntity } from "src/modules/user/entities/user.entity";
-import { LikeEntity } from "src/modules/user/entities/like.entity";
-import { CommentEntity } from "src/modules/comment/entities/comment.entity";
-
+  
 @Entity(EntityName.Post)
 export class PostEntity extends BaseEntity {
 	@Column()
@@ -27,22 +28,28 @@ export class PostEntity extends BaseEntity {
 	@Column({ default: PostStatus.Published })
 	status: string;
 
+	@Column("text", { array: true, nullable: true })
+	mention: string[];
+
 	@Column()
 	userId: number;
 	@ManyToOne(() => UserEntity, (user) => user.posts, { onDelete: "CASCADE" })
 	user: UserEntity;
-	
+
 	@Column({ nullable: true })
 	commentId: number;
-	@OneToMany(() => CommentEntity, (comment) => comment.post)
+	@OneToMany(() => PostCommentEntity, (comment) => comment.post)
 	@JoinColumn({ name: "commentId" })
-	comments: CommentEntity[];
+	comments: PostCommentEntity[];
 
 	@Column({ nullable: true })
 	likeId: number;
-	@OneToMany(() => LikeEntity, (like) => like.post)
+	@OneToMany(() => PostLikeEntity, (like) => like.post)
 	@JoinColumn({ name: "likeId" })
-	likes: LikeEntity[];
+	likes: PostLikeEntity[];
+
+	@OneToMany(() => PostBookmarkEntity, (bookmark) => bookmark.post)
+	bookmarks: PostBookmarkEntity[]; 
 
 	@OneToMany(() => MediaEntity, (media) => media.post)
 	media: MediaEntity[];

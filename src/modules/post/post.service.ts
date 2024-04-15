@@ -6,13 +6,16 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { BadRequestException, ForbiddenException, Inject, Injectable, Scope } from "@nestjs/common";
 
 import { PostMediasType } from "./types/files";
+import { FilterPostDto } from "./dto/filter.dto";
 import { PostEntity } from "./entities/post.entity";
 import { CreatePostDto } from "./dto/create-post.dto";
 import { UpdatePostDto } from "./dto/update-post.dto";
 import { MediaEntity } from "./entities/media.entity";
 import { UserEntity } from "../user/entities/user.entity";
+import { EntityName } from "src/common/enums/entity.enum";
+import { PaginationDto } from "src/common/dtos/pagination.dto";
+import { paginationGenerator, paginationSolver } from "src/common/utils/pagination.util";
 import { AuthMessage, NotFoundMessage, PublicMessage } from "src/common/enums/message.enum";
-import { join } from "path";
 
 @Injectable({ scope: Scope.REQUEST })
 export class PostService {
@@ -24,9 +27,16 @@ export class PostService {
 	) {}
 	async create(files: PostMediasType, createPostDto: CreatePostDto) {
 		const { id } = this.request.user;
-		const { caption, type, status } = createPostDto;
+		const { caption, type, mention, status } = createPostDto;
+
 		let post = await this.postRepository.save(
-			this.postRepository.create({ caption, status, type, userId: id }),
+			this.postRepository.create({
+				caption,
+				status,
+				type,
+				mention: this.convertToArray(mention),
+				userId: id,
+			}),
 		);
 
 		if (type === "album" && files) {
@@ -72,9 +82,31 @@ export class PostService {
 		return { message: PublicMessage.Successfuly, Posts };
 	}
 
+	async postList(paginationDto: PaginationDto, filterDto: FilterPostDto) {
+		const { limit, page, skip } = paginationSolver(paginationDto);
+		let { search } = filterDto;
+		let where = "";
+
+		const [posts, count] = await this.postRepository
+			.createQueryBuilder(EntityName.Post)
+			.leftJoin("post.user", "user")
+			.leftJoin("user.profile", "profile")
+			.addSelect(["user.username", "user.id", "profile.fullname"])
+			.where(where, { search })
+			.loadRelationCountAndMap("post.likes", "post.likes")
+			.loadRelationCountAndMap("post.bookmarks", "post.bookmarks")
+			.loadRelationCountAndMap("post.comments", "post.comments")
+			.orderBy("post.id", "DESC")
+			.skip(skip)
+			.take(limit)
+			.getManyAndCount();
+
+		return { pagination: paginationGenerator(count, page, limit), posts };
+	}
+
 	async update(postid: number, updatePostDto: UpdatePostDto) {
 		const { id: userId } = this.request.user;
-		const { caption, status } = updatePostDto;
+		const { caption, status, mention } = updatePostDto;
 
 		let post = await this.postRepository.findOneBy({ id: postid });
 		if (!post) throw new BadRequestException(NotFoundMessage.NotFoundPost);
@@ -83,12 +115,17 @@ export class PostService {
 		if (post) {
 			if (caption) post.caption = caption;
 			if (status) post.status = status;
+			if (mention) post.mention = this.convertToArray(mention);
 			post = await this.postRepository.save(post);
 		}
 
 		return { message: PublicMessage.Updated };
 	}
-
+	convertToArray(data: string[]): Array<string> {
+		const arrayData = data.toString().split(",");
+		const mention = arrayData.map((value) => value.trim());
+		return mention;
+	}
 	async remove(postid: number) {
 		const { id: userId } = this.request.user;
 

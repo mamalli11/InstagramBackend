@@ -8,7 +8,11 @@ export class UpdatePostDto  {
 	@Length(1, 300)
 	@IsString()
 	caption: string;
+
     @ApiProperty({ default: PostStatus.Published, enum: PostStatus })
 	@IsEnum(PostStatus)
 	status: PostStatus;
+
+	@ApiProperty({ type: "string", isArray: true })
+	mention: string[];
 }

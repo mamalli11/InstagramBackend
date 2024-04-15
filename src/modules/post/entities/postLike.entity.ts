@@ -1,12 +1,13 @@
-import { BaseEntity } from "src/common/abstracts/base.entity";
-import { Column, CreateDateColumn, Entity, ManyToOne } from "typeorm";
-import { UserEntity } from "../../user/entities/user.entity";
-import { PostEntity } from "src/modules/post/entities/post.entity";
+import { CreateDateColumn, Entity, ManyToOne } from "typeorm";
+
 import { EntityName } from "src/common/enums/entity.enum";
+import { UserEntity } from "../../user/entities/user.entity";
+import { BaseEntity } from "src/common/abstracts/base.entity";
+import { PostEntity } from "src/modules/post/entities/post.entity";
 
 @Entity(EntityName.PostLike)
-export class LikeEntity extends BaseEntity {
-	@ManyToOne(() => UserEntity, (user) => user.likes, { onDelete: "CASCADE" })
+export class PostLikeEntity extends BaseEntity {
+	@ManyToOne(() => UserEntity, (user) => user.post_likes, { onDelete: "CASCADE" })
 	user: UserEntity;
 
 	@ManyToOne(() => PostEntity, (post) => post.likes, { onDelete: "CASCADE" })

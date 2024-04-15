@@ -13,9 +13,10 @@ import { ProfileEntity } from "./profile.entity";
 import { EntityName } from "src/common/enums/entity.enum";
 import { BaseEntity } from "src/common/abstracts/base.entity";
 import { PostEntity } from "src/modules/post/entities/post.entity";
-import { CommentEntity } from "src/modules/comment/entities/comment.entity";
-import { LikeEntity } from "./like.entity";
 import { StoryEntity } from "src/modules/story/entities/story.entity";
+import { PostLikeEntity } from "src/modules/post/entities/postLike.entity";
+import { PostCommentEntity } from "src/modules/post/entities/comment.entity";
+import { PostBookmarkEntity } from "src/modules/post/entities/bookmark.entity";
 
 @Entity(EntityName.User)
 export class UserEntity extends BaseEntity {
@@ -70,17 +71,14 @@ export class UserEntity extends BaseEntity {
 	@JoinColumn({ name: "postId" })
 	posts: PostEntity[];
 
-	@Column({ nullable: true })
-	commentId: number;
-	@OneToMany(() => CommentEntity, (comment) => comment.post)
-	@JoinColumn({ name: "commentId" })
-	comments: CommentEntity[];
+	@OneToMany(() => PostLikeEntity, (like) => like.user)
+	post_likes: PostLikeEntity[];
 
-	@Column({ nullable: true })
-	likeId: number;
-	@OneToMany(() => LikeEntity, (like) => like.post)
-	@JoinColumn({ name: "likeId" })
-	likes: LikeEntity[];
+	@OneToMany(() => PostBookmarkEntity, (bookmark) => bookmark.user)
+	post_bookmarks: PostBookmarkEntity[];
+	
+	@OneToMany(() => PostCommentEntity, (comment) => comment.user)
+	post_comments: PostCommentEntity[];
 
 	@Column({ nullable: true })
 	StoryId: number;

@@ -16,7 +16,10 @@ export class CreatePostDto {
 	@Length(1, 300)
 	@IsString()
 	caption: string;
-
+	
+	@ApiProperty({ type: "string", isArray: true })
+	mention: string[];
+	
 	@ApiProperty({ format: "binary" })
 	media1: string;
 

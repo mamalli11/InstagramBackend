@@ -8,7 +8,6 @@ import { AuthModule } from "../auth/auth.module";
 import { PostModule } from "../post/post.module";
 import { StoryModule } from "../story/story.module";
 import { TypeOrmConfig } from "src/config/typeorm.config";
-import { CommentModule } from "../comment/comment.module";
 
 @Module({
 	imports: [
@@ -20,7 +19,6 @@ import { CommentModule } from "../comment/comment.module";
 		AuthModule,
 		UserModule,
 		PostModule,
-		// CommentModule,
 		// StoryModule
 	],
 	controllers: [],

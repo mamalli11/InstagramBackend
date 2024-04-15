@@ -10,6 +10,7 @@ import {
 	UseGuards,
 	UseInterceptors,
 	Put,
+	Query,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiTags } from "@nestjs/swagger";
 
@@ -21,6 +22,11 @@ import { AuthGuard } from "../auth/guards/auth.guard";
 import { multerStorage } from "src/common/utils/multer.util";
 import { SwaggerConsumes } from "src/common/enums/swagger-consumes.enum";
 import { UploadedOptionalFiles } from "src/common/decorators/upload-file.decorator";
+import { SkipAuth } from "src/common/decorators/skip-auth.decorator";
+import { Pagination } from "src/common/decorators/pagination.decorator";
+import { FilterPost } from "src/common/decorators/filter.decorator";
+import { PaginationDto } from "src/common/dtos/pagination.dto";
+import { FilterPostDto } from "./dto/filter.dto";
 
 @Controller("post")
 @ApiTags("Post")
@@ -58,6 +64,14 @@ export class PostController {
 	@Get('/myProfile')
 	findAllPostsUser() {
 		return this.postService.findAllPostsUser();
+	}
+
+	@Get("/")
+	@SkipAuth()
+	@Pagination()
+	@FilterPost()
+	find(@Query() paginationDto: PaginationDto, @Query() filterDto: FilterPostDto) {
+		return this.postService.postList(paginationDto, filterDto);
 	}
 
 	@Get(":id")

@@ -17,6 +17,7 @@ import { StoryEntity } from "src/modules/story/entities/story.entity";
 import { PostLikeEntity } from "src/modules/post/entities/postLike.entity";
 import { PostCommentEntity } from "src/modules/post/entities/comment.entity";
 import { PostBookmarkEntity } from "src/modules/post/entities/bookmark.entity";
+import { PostCommentLikeEntity } from "src/modules/post/entities/postCommentLike.entity";
 
 @Entity(EntityName.User)
 export class UserEntity extends BaseEntity {
@@ -73,6 +74,9 @@ export class UserEntity extends BaseEntity {
 
 	@OneToMany(() => PostLikeEntity, (like) => like.user)
 	post_likes: PostLikeEntity[];
+	
+	@OneToMany(() => PostCommentLikeEntity, (like) => like.user)
+	post_comment_likes: PostCommentLikeEntity[];
 
 	@OneToMany(() => PostBookmarkEntity, (bookmark) => bookmark.user)
 	post_bookmarks: PostBookmarkEntity[];

@@ -14,12 +14,12 @@ import {
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiTags } from "@nestjs/swagger";
 
-import { PostService } from "./post.service";
-import { PostMediasType } from "./types/files";
-import { FilterPostDto } from "./dto/filter.dto";
-import { CreatePostDto } from "./dto/create-post.dto";
-import { UpdatePostDto } from "./dto/update-post.dto";
-import { AuthGuard } from "../auth/guards/auth.guard";
+import { PostService } from "../services/post.service";
+import { PostMediasType } from "../types/files";
+import { FilterPostDto } from "../dto/filter.dto";
+import { CreatePostDto } from "../dto/create-post.dto";
+import { UpdatePostDto } from "../dto/update-post.dto";
+import { AuthGuard } from "../../auth/guards/auth.guard";
 import { multerStorage } from "src/common/utils/multer.util";
 import { PaginationDto } from "src/common/dtos/pagination.dto";
 import { FilterPost } from "src/common/decorators/filter.decorator";

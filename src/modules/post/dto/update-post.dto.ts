@@ -1,15 +1,15 @@
-import { ApiProperty, ApiPropertyOptional, PartialType } from "@nestjs/swagger";
-import { CreatePostDto } from "./create-post.dto";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { IsEnum, IsString, Length } from "class-validator";
+
 import { PostStatus } from "../enums/post.enum";
 
-export class UpdatePostDto  {
+export class UpdatePostDto {
 	@ApiProperty({ description: "max Length 300" })
 	@Length(1, 300)
 	@IsString()
 	caption: string;
 
-    @ApiProperty({ default: PostStatus.Published, enum: PostStatus })
+	@ApiProperty({ default: PostStatus.Published, enum: PostStatus })
 	@IsEnum(PostStatus)
 	status: PostStatus;
 

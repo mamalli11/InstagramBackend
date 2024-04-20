@@ -12,17 +12,18 @@ import {
 	BadRequestException,
 } from "@nestjs/common";
 
-import { PostMediasType } from "./types/files";
-import { FilterPostDto } from "./dto/filter.dto";
-import { PostEntity } from "./entities/post.entity";
-import { CreatePostDto } from "./dto/create-post.dto";
-import { UpdatePostDto } from "./dto/update-post.dto";
-import { MediaEntity } from "./entities/media.entity";
-import { UserEntity } from "../user/entities/user.entity";
+import { PostMediasType } from "../types/files";
+import { FilterPostDto } from "../dto/filter.dto";
+import { PostEntity } from "../entities/post.entity";
+import { PostCommentService } from "./comment.service";
+import { CreatePostDto } from "../dto/create-post.dto";
+import { UpdatePostDto } from "../dto/update-post.dto";
+import { MediaEntity } from "../entities/media.entity";
+import { UserEntity } from "../../user/entities/user.entity";
 import { EntityName } from "src/common/enums/entity.enum";
-import { PostLikeEntity } from "./entities/postLike.entity";
+import { PostLikeEntity } from "../entities/postLike.entity";
 import { PaginationDto } from "src/common/dtos/pagination.dto";
-import { PostBookmarkEntity } from "./entities/bookmark.entity";
+import { PostBookmarkEntity } from "../entities/bookmark.entity";
 import { paginationGenerator, paginationSolver } from "src/common/utils/pagination.util";
 import { AuthMessage, NotFoundMessage, PublicMessage } from "src/common/enums/message.enum";
 
@@ -36,6 +37,7 @@ export class PostService {
 		@InjectRepository(PostBookmarkEntity)
 		private postBookmarkRepository: Repository<PostBookmarkEntity>,
 		@Inject(REQUEST) private request: Request,
+		private postCommentService: PostCommentService,
 	) {}
 	async create(files: PostMediasType, createPostDto: CreatePostDto) {
 		const { id } = this.request.user;
@@ -112,7 +114,7 @@ export class PostService {
 			.loadRelationCountAndMap("post.bookmarks", "post.bookmarks")
 			.getOne();
 		if (!post) throw new NotFoundException(NotFoundMessage.NotFoundPost);
-		// const commentsData = await this.blogCommentService.findCommentsOfBlog(blog.id, paginationDto);
+		const commentsData = await this.postCommentService.findCommentsOfPost(post.id, paginationDto);
 		const isLiked = !!(await this.postLikeRepository.findOneBy({ userId, postId: post.id }));
 		const isBookmarked = !!(await this.postBookmarkRepository.findOneBy({
 			userId,
@@ -122,7 +124,7 @@ export class PostService {
 			post,
 			isLiked,
 			isBookmarked,
-			// commentsData,
+			commentsData,
 		};
 	}
 

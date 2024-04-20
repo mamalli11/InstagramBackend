@@ -9,4 +9,5 @@ export enum EntityName {
 	PostLike = "post_like",
 	PostComment = "post_comment",
 	PostBookmark = "post_bookmarks",
+	PostCommentLike = "post_comment_like",
 }

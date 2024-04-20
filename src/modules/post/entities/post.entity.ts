@@ -1,10 +1,9 @@
 import {
 	Column,
-	CreateDateColumn,
 	Entity,
-	JoinColumn,
 	ManyToOne,
 	OneToMany,
+	CreateDateColumn,
 	UpdateDateColumn,
 } from "typeorm";
 
@@ -36,16 +35,13 @@ export class PostEntity extends BaseEntity {
 	@ManyToOne(() => UserEntity, (user) => user.posts, { onDelete: "CASCADE" })
 	user: UserEntity;
 
-	@Column({ nullable: true })
-	commentId: number;
+	@Column({ default: true })
+	isComment: boolean;
+
 	@OneToMany(() => PostCommentEntity, (comment) => comment.post)
-	@JoinColumn({ name: "commentId" })
 	comments: PostCommentEntity[];
 
-	@Column({ nullable: true })
-	likeId: number;
 	@OneToMany(() => PostLikeEntity, (like) => like.post)
-	@JoinColumn({ name: "likeId" })
 	likes: PostLikeEntity[];
 
 	@OneToMany(() => PostBookmarkEntity, (bookmark) => bookmark.post)

@@ -1,4 +1,4 @@
-import { CreateDateColumn, Entity, ManyToOne } from "typeorm";
+import { Column, CreateDateColumn, Entity, ManyToOne } from "typeorm";
 
 import { EntityName } from "src/common/enums/entity.enum";
 import { UserEntity } from "../../user/entities/user.entity";
@@ -7,6 +7,12 @@ import { PostEntity } from "src/modules/post/entities/post.entity";
 
 @Entity(EntityName.PostLike)
 export class PostLikeEntity extends BaseEntity {
+	@Column()
+	postId: number;
+
+	@Column()
+	userId: number;
+
 	@ManyToOne(() => UserEntity, (user) => user.post_likes, { onDelete: "CASCADE" })
 	user: UserEntity;
 

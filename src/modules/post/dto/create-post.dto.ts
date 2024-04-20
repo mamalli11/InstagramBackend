@@ -12,14 +12,17 @@ export class CreatePostDto {
 	@IsEnum(PostStatus)
 	status: PostStatus;
 
+	@ApiPropertyOptional({ default: true })
+	isComment: boolean;
+
 	@ApiProperty({ description: "max Length 300" })
 	@Length(1, 300)
 	@IsString()
 	caption: string;
-	
+
 	@ApiProperty({ type: "string", isArray: true })
 	mention: string[];
-	
+
 	@ApiProperty({ format: "binary" })
 	media1: string;
 

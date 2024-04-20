@@ -7,9 +7,20 @@ import { PostController } from "./post.controller";
 import { PostEntity } from "./entities/post.entity";
 import { MediaEntity } from "./entities/media.entity";
 import { UserEntity } from "../user/entities/user.entity";
+import { PostLikeEntity } from "./entities/postLike.entity";
+import { PostBookmarkEntity } from "./entities/bookmark.entity";
 
 @Module({
-	imports: [AuthModule, TypeOrmModule.forFeature([PostEntity, MediaEntity, UserEntity])],
+	imports: [
+		AuthModule,
+		TypeOrmModule.forFeature([
+			PostEntity,
+			MediaEntity,
+			UserEntity,
+			PostLikeEntity,
+			PostBookmarkEntity,
+		]),
+	],
 	controllers: [PostController],
 	providers: [PostService],
 })

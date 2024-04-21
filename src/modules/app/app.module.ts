@@ -8,6 +8,7 @@ import { AuthModule } from "../auth/auth.module";
 import { PostModule } from "../post/post.module";
 import { StoryModule } from "../story/story.module";
 import { TypeOrmConfig } from "src/config/typeorm.config";
+import { HashtagModule } from "../hashtag/hashtag.module";
 
 @Module({
 	imports: [
@@ -19,6 +20,7 @@ import { TypeOrmConfig } from "src/config/typeorm.config";
 		AuthModule,
 		UserModule,
 		PostModule,
+		HashtagModule,
 		// StoryModule
 	],
 	controllers: [],

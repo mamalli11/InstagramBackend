@@ -15,8 +15,8 @@ export class CreatePostDto {
 	@ApiPropertyOptional({ default: true })
 	isComment: boolean;
 
-	@ApiProperty({ description: "max Length 300" })
-	@Length(1, 300)
+	@ApiProperty({ description: "max Length 1000" })
+	@Length(1, 1000)
 	@IsString()
 	caption: string;
 

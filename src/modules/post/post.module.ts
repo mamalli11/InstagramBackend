@@ -6,6 +6,7 @@ import { PostEntity } from "./entities/post.entity";
 import { MediaEntity } from "./entities/media.entity";
 import { PostService } from "./services/post.service";
 import { UserEntity } from "../user/entities/user.entity";
+import { HashtagModule } from "../hashtag/hashtag.module";
 import { PostLikeEntity } from "./entities/postLike.entity";
 import { PostCommentEntity } from "./entities/comment.entity";
 import { PostController } from "./controllers/post.controller";
@@ -17,6 +18,7 @@ import { PostCommentLikeEntity } from "./entities/postCommentLike.entity";
 @Module({
 	imports: [
 		AuthModule,
+		HashtagModule,
 		TypeOrmModule.forFeature([
 			UserEntity,
 			PostEntity,

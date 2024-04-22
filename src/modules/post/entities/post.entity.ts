@@ -35,7 +35,7 @@ export class PostEntity extends BaseEntity {
 	@ManyToOne(() => UserEntity, (user) => user.posts, { onDelete: "CASCADE" })
 	user: UserEntity;
 
-	@Column({ default: true })
+	@Column("boolean")
 	isComment: boolean;
 
 	@OneToMany(() => PostCommentEntity, (comment) => comment.post)

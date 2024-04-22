@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { IsEnum, IsOptional, IsString, Length } from "class-validator";
+import { IsBoolean, IsBooleanString, IsEnum, IsOptional, IsString, Length } from "class-validator";
 
 import { PostStatus, PostType } from "../enums/post.enum";
 
@@ -12,7 +12,8 @@ export class CreatePostDto {
 	@IsEnum(PostStatus)
 	status: PostStatus;
 
-	@ApiPropertyOptional({ default: true })
+	@ApiProperty({ default: true })
+	@IsBooleanString()
 	isComment: boolean;
 
 	@ApiProperty({ description: "max Length 1000" })

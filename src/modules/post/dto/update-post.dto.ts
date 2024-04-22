@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { IsEnum, IsString, Length } from "class-validator";
+import { IsBooleanString, IsEnum, IsString, Length } from "class-validator";
 
 import { PostStatus } from "../enums/post.enum";
 
@@ -14,6 +14,7 @@ export class UpdatePostDto {
 	status: PostStatus;
 
 	@ApiPropertyOptional()
+	@IsBooleanString()
 	isComment: boolean;
 
 	@ApiProperty({ type: "string", isArray: true })

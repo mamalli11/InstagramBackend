@@ -12,15 +12,15 @@ import {
 	NotFoundMessage,
 	PublicMessage,
 } from "src/common/enums/message.enum";
-import { UpdateUserDto } from "./dto/profile.dto";
-import { UserEntity } from "./entities/user.entity";
-import { ProfileEntity } from "./entities/profile.entity";
-import { AuthService } from "../auth/auth.service";
-import { TokenService } from "../auth/tokens.service";
-import { GenderType } from "./enums/profile.enum";
-import { CookieKeys } from "src/common/enums/cookie.enum";
-import { AuthMethod } from "../auth/enums/method.enum";
 import { OtpEntity } from "./entities/otp.entity";
+import { GenderType } from "./enums/profile.enum";
+import { UpdateUserDto } from "./dto/profile.dto";
+import { AuthService } from "../auth/auth.service";
+import { UserEntity } from "./entities/user.entity";
+import { TokenService } from "../auth/tokens.service";
+import { AuthMethod } from "../auth/enums/method.enum";
+import { CookieKeys } from "src/common/enums/cookie.enum";
+import { ProfileEntity } from "./entities/profile.entity";
 
 @Injectable({ scope: Scope.REQUEST })
 export class UserService {

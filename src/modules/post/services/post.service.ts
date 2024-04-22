@@ -19,11 +19,12 @@ import { PostCommentService } from "./comment.service";
 import { CreatePostDto } from "../dto/create-post.dto";
 import { UpdatePostDto } from "../dto/update-post.dto";
 import { MediaEntity } from "../entities/media.entity";
-import { UserEntity } from "../../user/entities/user.entity";
 import { EntityName } from "src/common/enums/entity.enum";
 import { PostLikeEntity } from "../entities/postLike.entity";
 import { PaginationDto } from "src/common/dtos/pagination.dto";
+import { UserEntity } from "../../user/entities/user.entity";
 import { PostBookmarkEntity } from "../entities/bookmark.entity";
+import { HashtagService } from "src/modules/hashtag/hashtag.service";
 import { paginationGenerator, paginationSolver } from "src/common/utils/pagination.util";
 import { AuthMessage, NotFoundMessage, PublicMessage } from "src/common/enums/message.enum";
 
@@ -38,6 +39,7 @@ export class PostService {
 		private postBookmarkRepository: Repository<PostBookmarkEntity>,
 		@Inject(REQUEST) private request: Request,
 		private postCommentService: PostCommentService,
+		private hashtagService: HashtagService,
 	) {}
 	async create(files: PostMediasType, createPostDto: CreatePostDto) {
 		const { id } = this.request.user;
@@ -47,8 +49,8 @@ export class PostService {
 			this.postRepository.create({
 				type,
 				status,
-				caption,
-				isComment,
+				caption: await this.hashtagService.createHashTag(caption),
+				isComment: isComment.toString() === "true" ? true : false,
 				userId: id,
 				mention: this.convertToArray(mention),
 			}),
@@ -87,14 +89,15 @@ export class PostService {
 	}
 
 	async findAllUserPosts(username: string) {
-		const { id, is_private } = await this.userRepository.findOneBy({ username });
+		const user = await this.userRepository.findOneBy({ username });
+		if (!user) throw new NotFoundException(NotFoundMessage.NotFoundUser);
 
 		// if (is_private) {
 		// 		check follow user
 		// }
 
 		const Posts = await this.postRepository.find({
-			where: { userId: id, status: "published" },
+			where: { userId: user.id, status: "published" },
 			select: ["id", "type", "media"],
 			relations: { media: true },
 			order: { id: "DESC" },
@@ -108,7 +111,7 @@ export class PostService {
 			.createQueryBuilder(EntityName.Post)
 			.leftJoin("post.user", "user")
 			.leftJoin("user.profile", "profile")
-			.addSelect(["user.username", "user.id", "profile.fullName"])
+			.addSelect(["user.username", "user.id", "profile.fullname", "profile.profile_picture"])
 			.where({ id: postid })
 			.loadRelationCountAndMap("post.likes", "post.likes")
 			.loadRelationCountAndMap("post.bookmarks", "post.bookmarks")
@@ -120,12 +123,7 @@ export class PostService {
 			userId,
 			postId: post.id,
 		}));
-		return {
-			post,
-			isLiked,
-			isBookmarked,
-			commentsData,
-		};
+		return { post, isLiked, isBookmarked, commentsData };
 	}
 
 	async postList(paginationDto: PaginationDto, filterDto: FilterPostDto) {
@@ -133,11 +131,17 @@ export class PostService {
 		let { search } = filterDto;
 		let where = "";
 
+		if (search) {
+			if (where.length > 0) where += " AND ";
+			search = `%${search}%`;
+			where += "CONCAT(post.caption) ILIKE :search";
+		}
+
 		const [posts, count] = await this.postRepository
 			.createQueryBuilder(EntityName.Post)
 			.leftJoin("post.user", "user")
 			.leftJoin("user.profile", "profile")
-			.addSelect(["user.username", "user.id", "profile.fullname"])
+			.addSelect(["user.username", "user.id", "profile.fullname", "profile.profile_picture"])
 			.where(where, { search })
 			.loadRelationCountAndMap("post.likes", "post.likes")
 			.loadRelationCountAndMap("post.bookmarks", "post.bookmarks")
@@ -224,6 +228,7 @@ export class PostService {
 	}
 
 	convertToArray(data: string[]): Array<string> {
+		if (!data) return data;
 		const arrayData = data.toString().split(",");
 		const mention = arrayData.map((value) => value.trim());
 		return mention;

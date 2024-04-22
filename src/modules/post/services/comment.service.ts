@@ -5,24 +5,24 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Inject, Injectable, NotFoundException, Scope, forwardRef } from "@nestjs/common";
 
 import { PostService } from "./post.service";
-import { PostEntity } from "../entities/post.entity";
 import { CreateCommentDto } from "../dto/comment.dto";
 import { PaginationDto } from "src/common/dtos/pagination.dto";
 import { PostCommentEntity } from "../entities/comment.entity";
+import { HashtagService } from "src/modules/hashtag/hashtag.service";
+import { PostCommentLikeEntity } from "../entities/postCommentLike.entity";
 import { paginationGenerator, paginationSolver } from "src/common/utils/pagination.util";
 import { BadRequestMessage, NotFoundMessage, PublicMessage } from "src/common/enums/message.enum";
-import { PostCommentLikeEntity } from "../entities/postCommentLike.entity";
 
 @Injectable({ scope: Scope.REQUEST })
 export class PostCommentService {
 	constructor(
-		@InjectRepository(PostEntity) private postRepository: Repository<PostEntity>,
 		@InjectRepository(PostCommentLikeEntity)
 		private postCommentLikeEntity: Repository<PostCommentLikeEntity>,
 		@InjectRepository(PostCommentEntity)
 		private postCommentRepository: Repository<PostCommentEntity>,
 		@Inject(REQUEST) private request: Request,
 		@Inject(forwardRef(() => PostService)) private postService: PostService,
+		@Inject(forwardRef(() => HashtagService)) private hashtagService: HashtagService,
 	) {}
 
 	async create(commentDto: CreateCommentDto) {
@@ -34,7 +34,7 @@ export class PostCommentService {
 			parent = await this.postCommentRepository.findOneBy({ id: +parentId });
 		}
 		await this.postCommentRepository.insert({
-			text,
+			text: await this.hashtagService.createHashTag(text),
 			postId,
 			parentId: parent ? parentId : null,
 			userId,
@@ -43,6 +43,7 @@ export class PostCommentService {
 			message: PublicMessage.CreatedComment,
 		};
 	}
+
 	async find(paginationDto: PaginationDto) {
 		const { limit, page, skip } = paginationSolver(paginationDto);
 		const [comments, count] = await this.postCommentRepository.findAndCount({
@@ -57,7 +58,7 @@ export class PostCommentService {
 				likes: { userId: true },
 				user: {
 					username: true,
-					profile: { fullname: true },
+					profile: { fullname: true, profile_picture: true },
 				},
 			},
 			skip,
@@ -69,6 +70,7 @@ export class PostCommentService {
 			comments,
 		};
 	}
+
 	async findCommentsOfPost(postId: number, paginationDto: PaginationDto) {
 		const { limit, page, skip } = paginationSolver(paginationDto);
 		const [comments, count] = await this.postCommentRepository.findAndCount({
@@ -113,6 +115,7 @@ export class PostCommentService {
 			comments,
 		};
 	}
+
 	async likeComment(commentId: number) {
 		const { id: userId } = this.request.user;
 		await this.checkExistById(commentId);

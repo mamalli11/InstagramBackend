@@ -9,6 +9,7 @@ import {
 } from "typeorm";
 
 import { OtpEntity } from "./otp.entity";
+import { BlockEntity } from "./block.entity";
 import { FollowEntity } from "./follow.entity";
 import { ProfileEntity } from "./profile.entity";
 import { EntityName } from "src/common/enums/entity.enum";
@@ -67,10 +68,7 @@ export class UserEntity extends BaseEntity {
 	@JoinColumn({ name: "profileId" })
 	profile: ProfileEntity;
 
-	@Column({ nullable: true })
-	postId: number;
 	@OneToMany(() => PostEntity, (post) => post.user)
-	@JoinColumn({ name: "postId" })
 	posts: PostEntity[];
 
 	@OneToMany(() => PostLikeEntity, (like) => like.user)
@@ -84,6 +82,9 @@ export class UserEntity extends BaseEntity {
 
 	@OneToMany(() => PostCommentEntity, (comment) => comment.user)
 	post_comments: PostCommentEntity[];
+
+	@OneToMany(() => BlockEntity, (block) => block.user)
+	blocklist: BlockEntity[];
 
 	@Column({ nullable: true })
 	StoryId: number;

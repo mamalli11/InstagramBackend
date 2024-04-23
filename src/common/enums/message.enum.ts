@@ -39,6 +39,10 @@ export enum PublicMessage {
 	UnBookmark = " پست از لیست پست ها ذخیره شده برداشته شد",
 	CreatedComment = " نظر شما با موفقیت ثبت شد",
 	Successfuly = "درخواست باموفقیت انجام شد",
+	Followed = "با موفقیت دنبال شد",
+	UnFollow = "از لیست دنبال شوندگان حذف شد",
+	Blocked = "حساب کاربری با موفقیت مسدود شد",
+	UnBlocked = "حساب کاربری از حالت مسدود خارج شد",
 }
 export enum ConflictMessage {
 	CategoryTitle = "عنوان دسته بندی قبلا ثبت شده است",

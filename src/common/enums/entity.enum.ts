@@ -5,6 +5,7 @@ export enum EntityName {
 	Media = "media",
 	Album = "album",
 	Story = "story",
+	Follow = "follow",
 	Profile = "profile",
 	Hashtag = "hashtag",
 	PostLike = "post_like",

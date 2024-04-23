@@ -1,4 +1,3 @@
-import { ApiBearerAuth, ApiConsumes, ApiTags } from "@nestjs/swagger";
 import {
 	Controller,
 	Get,
@@ -11,7 +10,12 @@ import {
 	Patch,
 	Res,
 	Post,
+	ParseIntPipe,
+	Query,
 } from "@nestjs/common";
+import { Response } from "express";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { ApiBearerAuth, ApiConsumes, ApiParam, ApiTags } from "@nestjs/swagger";
 
 import {
 	ChangeEmailDto,
@@ -20,17 +24,16 @@ import {
 	UpdateUserDto,
 } from "./dto/profile.dto";
 import { UserService } from "./user.service";
-import { AuthGuard } from "../auth/guards/auth.guard";
-import { SwaggerConsumes } from "src/common/enums/swagger-consumes.enum";
-import { FileInterceptor } from "@nestjs/platform-express";
-import { multerStorage } from "src/common/utils/multer.util";
-import { UploadedOptionalFile } from "src/common/decorators/upload-file.decorator";
-import { ProfileImages } from "./types/files";
-import { CookiesOptionsToken } from "src/common/utils/cookie.util";
-import { CookieKeys } from "src/common/enums/cookie.enum";
 import { CheckOtpDto } from "../auth/dto/auth.dto";
-import { Response } from "express";
+import { AuthGuard } from "../auth/guards/auth.guard";
+import { CookieKeys } from "src/common/enums/cookie.enum";
+import { multerStorage } from "src/common/utils/multer.util";
 import { PublicMessage } from "src/common/enums/message.enum";
+import { PaginationDto } from "src/common/dtos/pagination.dto";
+import { CookiesOptionsToken } from "src/common/utils/cookie.util";
+import { Pagination } from "src/common/decorators/pagination.decorator";
+import { SwaggerConsumes } from "src/common/enums/swagger-consumes.enum";
+import { UploadedOptionalFile } from "src/common/decorators/upload-file.decorator";
 
 @Controller("user")
 @ApiTags("User")
@@ -41,8 +44,8 @@ export class UserController {
 
 	@Get("/profile")
 	@ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
-	findOne() {
-		return this.userService.findOne();
+	profile() {
+		return this.userService.profile();
 	}
 
 	@Put("/profile")
@@ -96,5 +99,23 @@ export class UserController {
 	@ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
 	async changeUsername(@Body() usernameDto: ChangeUsernameDto) {
 		return this.userService.changeUsername(usernameDto.username);
+	}
+
+	@Get("/followers")
+	@Pagination()
+	followers(@Query() paginationDto: PaginationDto) {
+		return this.userService.followers(paginationDto);
+	}
+
+	@Get("/following")
+	@Pagination()
+	following(@Query() paginationDto: PaginationDto) {
+		return this.userService.following(paginationDto);
+	}
+
+	@Get("/follow/:followingId")
+	@ApiParam({ name: "followingId" })
+	follow(@Param("followingId", ParseIntPipe) followingId: number) {
+		return this.userService.followToggle(followingId);
 	}
 }

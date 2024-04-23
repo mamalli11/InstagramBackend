@@ -9,6 +9,7 @@ import {
 } from "typeorm";
 
 import { OtpEntity } from "./otp.entity";
+import { FollowEntity } from "./follow.entity";
 import { ProfileEntity } from "./profile.entity";
 import { EntityName } from "src/common/enums/entity.enum";
 import { BaseEntity } from "src/common/abstracts/base.entity";
@@ -74,13 +75,13 @@ export class UserEntity extends BaseEntity {
 
 	@OneToMany(() => PostLikeEntity, (like) => like.user)
 	post_likes: PostLikeEntity[];
-	
+
 	@OneToMany(() => PostCommentLikeEntity, (like) => like.user)
 	post_comment_likes: PostCommentLikeEntity[];
 
 	@OneToMany(() => PostBookmarkEntity, (bookmark) => bookmark.user)
 	post_bookmarks: PostBookmarkEntity[];
-	
+
 	@OneToMany(() => PostCommentEntity, (comment) => comment.user)
 	post_comments: PostCommentEntity[];
 
@@ -90,15 +91,15 @@ export class UserEntity extends BaseEntity {
 	@JoinColumn({ name: "StoryId" })
 	stories: StoryEntity[];
 
+	@OneToMany(() => FollowEntity, (follow) => follow.following)
+	followers: FollowEntity[];
+
+	@OneToMany(() => FollowEntity, (follow) => follow.follower)
+	following: FollowEntity[];
+
 	@CreateDateColumn()
 	created_at: Date;
 
 	@UpdateDateColumn()
 	updated_at: Date;
-
-	// @OneToMany(() => Follow, (follow) => follow.follower)
-	// followers: Follow[];
-
-	// @OneToMany(() => Follow, (follow) => follow.following)
-	// following: Follow[];
 }

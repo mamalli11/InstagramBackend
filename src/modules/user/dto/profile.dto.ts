@@ -38,6 +38,9 @@ export class UpdateUserDto {
 	@IsOptional()
 	@IsUrl()
 	website: string;
+	@ApiPropertyOptional({ nullable: true, default: false })
+	@IsOptional()
+	is_private: boolean;
 	@ApiPropertyOptional({ nullable: true, example: "1999-02-22T12:01:26.487Z" })
 	@IsOptional()
 	birthday: Date;

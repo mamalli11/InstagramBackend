@@ -15,6 +15,9 @@ export class BlockEntity extends BaseEntity {
 	@ManyToOne(() => UserEntity, (user) => user.blocklist, { onDelete: "CASCADE" })
 	user: UserEntity;
 
+	@ManyToOne(() => UserEntity, (user) => user.id, { onDelete: "CASCADE" })
+	blocked: UserEntity;
+
 	@CreateDateColumn()
 	created_at: Date;
 }

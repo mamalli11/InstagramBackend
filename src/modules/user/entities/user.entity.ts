@@ -13,6 +13,7 @@ import { BlockEntity } from "./block.entity";
 import { FollowEntity } from "./follow.entity";
 import { ProfileEntity } from "./profile.entity";
 import { EntityName } from "src/common/enums/entity.enum";
+import { FollowRequestEntity } from "./follow-requst.entity";
 import { BaseEntity } from "src/common/abstracts/base.entity";
 import { PostEntity } from "src/modules/post/entities/post.entity";
 import { StoryEntity } from "src/modules/story/entities/story.entity";
@@ -97,6 +98,9 @@ export class UserEntity extends BaseEntity {
 
 	@OneToMany(() => FollowEntity, (follow) => follow.follower)
 	following: FollowEntity[];
+
+	@OneToMany(() => FollowRequestEntity, (follow) => follow.user)
+	requestedFollow: FollowRequestEntity[];
 
 	@CreateDateColumn()
 	created_at: Date;

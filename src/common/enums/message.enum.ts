@@ -11,6 +11,7 @@ export enum AuthMessage {
 	LoginAgain = "مجددا وارد حساب کاربری خود شوید",
 	LoginIsRequired = "وارد حساب کاربری خود شوید",
 	Forbidden = "شما دسترسی لازم برای این عملیات را ندارید",
+	DeleteAccount = "حساب کاربری باموفقیت حذف شد",
 }
 export enum NotFoundMessage {
 	NotFound = "موردی یافت نشد",
@@ -40,9 +41,14 @@ export enum PublicMessage {
 	CreatedComment = " نظر شما با موفقیت ثبت شد",
 	Successfuly = "درخواست باموفقیت انجام شد",
 	Followed = "با موفقیت دنبال شد",
+	ReqFollow = "درخواست دونبال کردن باموفقیت ارسال شد",
+	ReqUnFollow = "درخواست دونبال کردن لغو شد",
+	ReqFollowRejected = "درخواست دونبال کردن رد شد",
+	ReqFollowAccepted = "درخواست دونبال کردن قبول شد",
 	UnFollow = "از لیست دنبال شوندگان حذف شد",
 	Blocked = "حساب کاربری با موفقیت مسدود شد",
 	UnBlocked = "حساب کاربری از حالت مسدود خارج شد",
+	Nothing = "هیچ کاری انجام نشد",
 }
 export enum ConflictMessage {
 	CategoryTitle = "عنوان دسته بندی قبلا ثبت شده است",

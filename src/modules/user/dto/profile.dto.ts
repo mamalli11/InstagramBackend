@@ -1,17 +1,16 @@
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import {
-	IsDate,
-	IsEmail,
-	IsEnum,
-	IsMobilePhone,
-	IsOptional,
-	IsString,
 	IsUrl,
+	IsEnum,
 	Length,
 	Matches,
+	IsEmail,
+	IsString,
+	IsOptional,
+	IsMobilePhone,
 } from "class-validator";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
-import { GenderType } from "../enums/profile.enum";
+import { GenderType, PageType } from "../enums/profile.enum";
 import { ValidationMessage } from "src/common/enums/message.enum";
 
 export class UpdateUserDto {
@@ -38,9 +37,10 @@ export class UpdateUserDto {
 	@IsOptional()
 	@IsUrl()
 	website: string;
-	@ApiPropertyOptional({ nullable: true, default: false })
+	@ApiPropertyOptional({ nullable: true, enum: PageType })
 	@IsOptional()
-	is_private: boolean;
+	@IsEnum(PageType)
+	is_private: PageType;
 	@ApiPropertyOptional({ nullable: true, example: "1999-02-22T12:01:26.487Z" })
 	@IsOptional()
 	birthday: Date;

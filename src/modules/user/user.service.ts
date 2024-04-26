@@ -31,9 +31,9 @@ import { ProfileEntity } from "./entities/profile.entity";
 import { EntityName } from "src/common/enums/entity.enum";
 import { FollowRequestDto } from "./dto/followRequest.dto";
 import { PaginationDto } from "src/common/dtos/pagination.dto";
-import { GenderType, RequestType } from "./enums/profile.enum";
 import { ChangeUsernameDto, UpdateUserDto } from "./dto/profile.dto";
 import { FollowRequestEntity } from "./entities/follow-requst.entity";
+import { GenderType, PageType, RequestType } from "./enums/profile.enum";
 import { paginationGenerator, paginationSolver } from "src/common/utils/pagination.util";
 
 @Injectable({ scope: Scope.REQUEST })
@@ -92,10 +92,12 @@ export class UserService {
 			if (profile_picture) profile.profile_picture = profile_picture;
 
 			profile = await this.profileRepository.save(profile);
-
-			if (is_private) {
-				await this.userRepository.update({ id: userId }, { is_private: Boolean(is_private) });
-			}
+			
+			if (is_private)
+				await this.userRepository.update(
+					{ id: userId },
+					{ is_private: is_private === PageType.Private },
+				);
 		}
 		if (!profileId) {
 			await this.userRepository.update({ id: userId }, { profileId: profile.id });
@@ -283,19 +285,17 @@ export class UserService {
 		}
 	}
 	async userProfile(username: string) {
+		const { id } = this.request.user;
 		const user = await this.userRepository.findOneBy({ username });
 		if (!user) throw new NotFoundException(NotFoundMessage.NotFoundUser);
 
-		const block = await this.blockRepository.findOneBy({
-			userId: user.id,
-			blockedId: this.request.user.id,
-		});
+		const block = await this.blockRepository.findOneBy({ userId: user.id, blockedId: id });
 		if (block) throw new BadRequestException(BadRequestMessage.SomeThingWrong);
 
 		if (user.is_private) {
 			const isFollow = await this.followRepository.findOneBy({
-				followingId: user.id,
-				followerId: this.request.user.id,
+				followingId: id,
+				followerId: user.id,
 			});
 			if (!isFollow) {
 				return this.userRepository
@@ -318,25 +318,25 @@ export class UserService {
 					.loadRelationCountAndMap("user.posts", "user.posts")
 					.getOne();
 			}
-		} else {
-			return this.userRepository.find({
-				where: { id: user.id, posts: { status: "published" } },
-				relations: {
-					profile: true,
-					posts: { media: true },
-				},
-				select: {
-					posts: { type: true, media: true, status: true, id: true },
-					profile: { fullname: true, profile_picture: true, bio: true, website: true },
-					username: true,
-					id: true,
-					is_private: true,
-					is_verified: true,
-					created_at: true,
-				},
-				order: { posts: { id: "DESC" } },
-			});
 		}
+
+		return this.userRepository.find({
+			where: { id: user.id, posts: { status: "published" } },
+			relations: {
+				profile: true,
+				posts: { media: true },
+			},
+			select: {
+				posts: { type: true, media: true, status: true, id: true },
+				profile: { fullname: true, profile_picture: true, bio: true, website: true },
+				username: true,
+				id: true,
+				is_private: true,
+				is_verified: true,
+				created_at: true,
+			},
+			order: { posts: { id: "DESC" } },
+		});
 	}
 	async blockToggle(userId: number) {
 		const { id } = this.request.user;

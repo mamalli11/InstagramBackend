@@ -9,3 +9,8 @@ export enum RequestType {
 	Accepted = "accepted",
 	Rejected = "rejected",
 }
+
+export enum PageType {
+	Public = "public",
+	Private = "private",
+}

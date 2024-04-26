@@ -1,5 +1,11 @@
 export enum GenderType {
-    Male = "male",
-    Female = "female",
-    Other = "other"
+	Male = "male",
+	Other = "other",
+	Female = "female",
+}
+
+export enum RequestType {
+	Waiting = "waiting",
+	Accepted = "accepted",
+	Rejected = "rejected",
 }

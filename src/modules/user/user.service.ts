@@ -20,17 +20,20 @@ import {
 	BadRequestMessage,
 } from "src/common/enums/message.enum";
 import { OtpEntity } from "./entities/otp.entity";
-import { GenderType } from "./enums/profile.enum";
-import { UpdateUserDto } from "./dto/profile.dto";
 import { AuthService } from "../auth/auth.service";
 import { UserEntity } from "./entities/user.entity";
 import { TokenService } from "../auth/tokens.service";
+import { BlockEntity } from "./entities/block.entity";
 import { AuthMethod } from "../auth/enums/method.enum";
 import { FollowEntity } from "./entities/follow.entity";
 import { CookieKeys } from "src/common/enums/cookie.enum";
 import { ProfileEntity } from "./entities/profile.entity";
 import { EntityName } from "src/common/enums/entity.enum";
+import { FollowRequestDto } from "./dto/followRequest.dto";
 import { PaginationDto } from "src/common/dtos/pagination.dto";
+import { GenderType, RequestType } from "./enums/profile.enum";
+import { ChangeUsernameDto, UpdateUserDto } from "./dto/profile.dto";
+import { FollowRequestEntity } from "./entities/follow-requst.entity";
 import { paginationGenerator, paginationSolver } from "src/common/utils/pagination.util";
 
 @Injectable({ scope: Scope.REQUEST })
@@ -38,8 +41,11 @@ export class UserService {
 	constructor(
 		@InjectRepository(OtpEntity) private otpRepository: Repository<OtpEntity>,
 		@InjectRepository(UserEntity) private userRepository: Repository<UserEntity>,
+		@InjectRepository(BlockEntity) private blockRepository: Repository<BlockEntity>,
 		@InjectRepository(FollowEntity) private followRepository: Repository<FollowEntity>,
 		@InjectRepository(ProfileEntity) private profileRepository: Repository<ProfileEntity>,
+		@InjectRepository(FollowRequestEntity)
+		private followReqRepository: Repository<FollowRequestEntity>,
 		@Inject(REQUEST) private request: Request,
 		private authService: AuthService,
 		private tokenService: TokenService,
@@ -96,11 +102,12 @@ export class UserService {
 		}
 		return { message: PublicMessage.Updated };
 	}
-	async remove() {
+	async removeAccount() {
 		const { id } = this.request.user;
 		await this.userRepository.delete({ id });
 		await this.profileRepository.delete({ userId: id });
-		return this.otpRepository.delete({ userId: id });
+		await this.otpRepository.delete({ userId: id });
+		return { message: AuthMessage.DeleteAccount };
 	}
 	async changeUsername(username: string) {
 		const { id } = this.request.user;
@@ -187,19 +194,18 @@ export class UserService {
 		const { limit, page, skip } = paginationSolver(paginationDto);
 		const { id: userId } = this.request.user;
 		const [followers, count] = await this.followRepository.findAndCount({
-			where: { followingId: userId },
+			where: { followerId: userId },
 			relations: {
-				follower: { profile: true },
+				following: { profile: true },
 			},
 			select: {
 				id: true,
-				follower: {
+				following: {
 					id: true,
 					username: true,
 					profile: {
 						id: true,
 						fullname: true,
-						bio: true,
 						profile_picture: true,
 					},
 				},
@@ -216,19 +222,18 @@ export class UserService {
 		const { limit, page, skip } = paginationSolver(paginationDto);
 		const { id: userId } = this.request.user;
 		const [following, count] = await this.followRepository.findAndCount({
-			where: { followerId: userId },
+			where: { followingId: userId },
 			relations: {
-				following: { profile: true },
+				follower: { profile: true },
 			},
 			select: {
 				id: true,
-				following: {
+				follower: {
 					id: true,
 					username: true,
 					profile: {
 						id: true,
 						fullname: true,
-						bio: true,
 						profile_picture: true,
 					},
 				},
@@ -241,22 +246,181 @@ export class UserService {
 			following,
 		};
 	}
-	async followToggle(followingId: number) {
+	async followToggle(usernameDto: ChangeUsernameDto) {
 		const { id: userId } = this.request.user;
-		const following = await this.userRepository.findOneBy({ id: followingId });
+		const following = await this.userRepository.findOneBy({ username: usernameDto.username });
 		if (!following) throw new NotFoundException(NotFoundMessage.NotFoundUser);
+		if (following.id === userId) throw new BadRequestException(BadRequestMessage.SomeThingWrong);
 
-		const isFollowing = await this.followRepository.findOneBy({
-			followingId,
-			followerId: userId,
-		});
-		let message = PublicMessage.Followed;
-		if (isFollowing) {
-			message = PublicMessage.UnFollow;
-			await this.followRepository.remove(isFollowing);
-		} else {
-			await this.followRepository.insert({ followingId, followerId: userId });
+		if (following.is_private) {
+			const isFollowing = await this.followRepository.findOneBy({
+				followingId: userId,
+				followerId: following.id,
+			});
+			if (isFollowing) {
+				if (isFollowing) {
+					await this.followRepository.remove(isFollowing);
+					return { message: PublicMessage.UnFollow };
+				} else {
+					await this.followRepository.insert({
+						followingId: userId,
+						followerId: following.id,
+					});
+					return { message: PublicMessage.Followed };
+				}
+			} else {
+				const follow = await this.followReqRepository.findOneBy({
+					userId,
+					requseted: following.id,
+				});
+				if (follow) {
+					await this.followReqRepository.remove(follow);
+					return { message: PublicMessage.ReqUnFollow };
+				}
+				await this.followReqRepository.insert({ userId, requseted: following.id });
+				return { message: PublicMessage.ReqFollow };
+			}
 		}
-		return { message };
+	}
+	async userProfile(username: string) {
+		const user = await this.userRepository.findOneBy({ username });
+		if (!user) throw new NotFoundException(NotFoundMessage.NotFoundUser);
+
+		const block = await this.blockRepository.findOneBy({
+			userId: user.id,
+			blockedId: this.request.user.id,
+		});
+		if (block) throw new BadRequestException(BadRequestMessage.SomeThingWrong);
+
+		if (user.is_private) {
+			const isFollow = await this.followRepository.findOneBy({
+				followingId: user.id,
+				followerId: this.request.user.id,
+			});
+			if (!isFollow) {
+				return this.userRepository
+					.createQueryBuilder(EntityName.User)
+					.where({ id: user.id })
+					.leftJoinAndSelect("user.profile", "profile")
+					.select([
+						"user.id",
+						"user.username",
+						"user.is_private",
+						"user.created_at",
+						"user.is_verified",
+						"profile.bio",
+						"profile.fullname",
+						"profile.website",
+						"profile.profile_picture",
+					])
+					.loadRelationCountAndMap("user.followers", "user.followers")
+					.loadRelationCountAndMap("user.following", "user.following")
+					.loadRelationCountAndMap("user.posts", "user.posts")
+					.getOne();
+			}
+		} else {
+			return this.userRepository.find({
+				where: { id: user.id, posts: { status: "published" } },
+				relations: {
+					profile: true,
+					posts: { media: true },
+				},
+				select: {
+					posts: { type: true, media: true, status: true, id: true },
+					profile: { fullname: true, profile_picture: true, bio: true, website: true },
+					username: true,
+					id: true,
+					is_private: true,
+					is_verified: true,
+					created_at: true,
+				},
+				order: { posts: { id: "DESC" } },
+			});
+		}
+	}
+	async blockToggle(userId: number) {
+		const { id } = this.request.user;
+		const user = await this.userRepository.findOneBy({ id: userId });
+		if (!user) throw new NotFoundException(NotFoundMessage.NotFoundUser);
+		if (user.id === id) throw new BadRequestException(BadRequestMessage.SomeThingWrong);
+
+		const isBlock = await this.blockRepository.findOneBy({ blockedId: userId, userId: id });
+		if (isBlock) {
+			await this.blockRepository.remove(isBlock);
+			return { message: PublicMessage.UnBlocked };
+		}
+		await this.blockRepository.insert({ blockedId: userId, userId: id });
+		return { message: PublicMessage.Blocked };
+	}
+	async blockList(paginationDto: PaginationDto) {
+		const { id } = this.request.user;
+		const { limit, page, skip } = paginationSolver(paginationDto);
+		const [blocks, count] = await this.blockRepository.findAndCount({
+			where: { userId: id },
+			relations: {
+				blocked: { profile: true },
+			},
+			select: {
+				id: true,
+				blocked: {
+					id: true,
+					username: true,
+					profile: {
+						fullname: true,
+						profile_picture: true,
+					},
+				},
+			},
+			skip,
+			take: limit,
+		});
+		return {
+			pagination: paginationGenerator(count, page, limit),
+			blocks,
+		};
+	}
+	async requestManagement(followRequestDto: FollowRequestDto) {
+		const { id } = this.request.user;
+		const { RequestStatus, userId } = followRequestDto;
+		const ReqFollow = await this.followReqRepository.findOneBy({ requseted: id, userId: userId });
+		if (!ReqFollow) throw new NotFoundException(NotFoundMessage.NotFound);
+
+		if (RequestStatus === RequestType.Rejected) {
+			await this.followReqRepository.remove(ReqFollow);
+			return { message: PublicMessage.ReqFollowRejected };
+		}
+		if (RequestStatus === RequestType.Accepted) {
+			await this.followReqRepository.remove(ReqFollow);
+			await this.followRepository.insert({ followingId: userId, followerId: id });
+			return { message: PublicMessage.ReqFollowAccepted };
+		}
+		return { message: PublicMessage.Nothing };
+	}
+	async requestFollowList(paginationDto: PaginationDto) {
+		const { id } = this.request.user;
+		const { limit, page, skip } = paginationSolver(paginationDto);
+		const [request, count] = await this.followReqRepository.findAndCount({
+			where: { requseted: id, status: "waiting" },
+			relations: {
+				user: { profile: true },
+			},
+			select: {
+				id: true,
+				user: {
+					id: true,
+					username: true,
+					profile: {
+						fullname: true,
+						profile_picture: true,
+					},
+				},
+			},
+			skip,
+			take: limit,
+		});
+		return {
+			pagination: paginationGenerator(count, page, limit),
+			request,
+		};
 	}
 }

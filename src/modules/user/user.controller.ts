@@ -1,32 +1,33 @@
 import {
-	Controller,
 	Get,
+	Res,
+	Put,
 	Body,
+	Post,
+	Patch,
+	Query,
 	Param,
 	Delete,
 	UseGuards,
-	Put,
-	UseInterceptors,
-	Patch,
-	Res,
-	Post,
+	Controller,
 	ParseIntPipe,
-	Query,
+	UseInterceptors,
 } from "@nestjs/common";
 import { Response } from "express";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { ApiBearerAuth, ApiConsumes, ApiParam, ApiTags } from "@nestjs/swagger";
 
 import {
+	UpdateUserDto,
 	ChangeEmailDto,
 	ChangePhoneDto,
 	ChangeUsernameDto,
-	UpdateUserDto,
 } from "./dto/profile.dto";
 import { UserService } from "./user.service";
 import { CheckOtpDto } from "../auth/dto/auth.dto";
 import { AuthGuard } from "../auth/guards/auth.guard";
 import { CookieKeys } from "src/common/enums/cookie.enum";
+import { FollowRequestDto } from "./dto/followRequest.dto";
 import { multerStorage } from "src/common/utils/multer.util";
 import { PublicMessage } from "src/common/enums/message.enum";
 import { PaginationDto } from "src/common/dtos/pagination.dto";
@@ -59,8 +60,26 @@ export class UserController {
 	}
 
 	@Delete()
-	remove() {
-		return this.userService.remove();
+	removeAccount() {
+		return this.userService.removeAccount();
+	}
+
+	@Get("/followers")
+	@Pagination()
+	followers(@Query() paginationDto: PaginationDto) {
+		return this.userService.followers(paginationDto);
+	}
+
+	@Get("/following")
+	@Pagination()
+	following(@Query() paginationDto: PaginationDto) {
+		return this.userService.following(paginationDto);
+	}
+
+	@Post("/follow")
+	@ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
+	follow(@Body() usernameDto: ChangeUsernameDto) {
+		return this.userService.followToggle(usernameDto);
 	}
 
 	@Patch("/change-email")
@@ -101,21 +120,32 @@ export class UserController {
 		return this.userService.changeUsername(usernameDto.username);
 	}
 
-	@Get("/followers")
-	@Pagination()
-	followers(@Query() paginationDto: PaginationDto) {
-		return this.userService.followers(paginationDto);
+	@Get("/userProfile/:username")
+	@ApiParam({ name: "username" })
+	userProfile(@Param("username") username: string) {
+		return this.userService.userProfile(username);
 	}
 
-	@Get("/following")
-	@Pagination()
-	following(@Query() paginationDto: PaginationDto) {
-		return this.userService.following(paginationDto);
+	@Put("/block/:userId")
+	@ApiParam({ name: "userId" })
+	blockUser(@Param("userId", ParseIntPipe) userId: number) {
+		return this.userService.blockToggle(userId);
 	}
 
-	@Get("/follow/:followingId")
-	@ApiParam({ name: "followingId" })
-	follow(@Param("followingId", ParseIntPipe) followingId: number) {
-		return this.userService.followToggle(followingId);
+	@Get("/block")
+	@Pagination()
+	blockList(@Query() paginationDto: PaginationDto) {
+		return this.userService.blockList(paginationDto);
+	}
+
+	@Put("/requestManagement")
+	requestManagement(@Query() followRequestDto: FollowRequestDto) {
+		return this.userService.requestManagement(followRequestDto);
+	}
+
+	@Get("/requestFollowList")
+	@Pagination()
+	requestFollowList(@Query() paginationDto: PaginationDto) {
+		return this.userService.requestFollowList(paginationDto);
 	}
 }

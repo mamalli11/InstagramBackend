@@ -7,6 +7,7 @@ import {
 	BadRequestException,
 } from "@nestjs/common";
 import { Request } from "express";
+import { compareSync } from "bcrypt";
 import { Repository } from "typeorm";
 import { REQUEST } from "@nestjs/core";
 import { isDate } from "class-validator";
@@ -30,6 +31,7 @@ import { CookieKeys } from "src/common/enums/cookie.enum";
 import { ProfileEntity } from "./entities/profile.entity";
 import { EntityName } from "src/common/enums/entity.enum";
 import { FollowRequestDto } from "./dto/followRequest.dto";
+import { ChangePasswordDto } from "./dto/change-password.dto";
 import { PaginationDto } from "src/common/dtos/pagination.dto";
 import { ChangeUsernameDto, UpdateUserDto } from "./dto/profile.dto";
 import { FollowRequestEntity } from "./entities/follow-requst.entity";
@@ -92,7 +94,7 @@ export class UserService {
 			if (profile_picture) profile.profile_picture = profile_picture;
 
 			profile = await this.profileRepository.save(profile);
-			
+
 			if (is_private)
 				await this.userRepository.update(
 					{ id: userId },
@@ -120,6 +122,27 @@ export class UserService {
 			return { message: PublicMessage.Updated };
 		}
 		await this.userRepository.update({ id }, { username });
+		return { message: PublicMessage.Updated };
+	}
+	async changePassword(changePasswordDto: ChangePasswordDto) {
+		const { id } = this.request.user;
+		const { newPassword, oldPassword } = changePasswordDto;
+
+		const [UserEntity] = await this.userRepository.find({
+			where: { id },
+			select: ["id", "password", "passwordChangeAt"],
+		});
+
+		if (!UserEntity) throw new NotFoundException(NotFoundMessage.NotFoundUser);
+
+		if (!compareSync(oldPassword, UserEntity.password))
+			throw new BadRequestException("Old password is incorrect");
+
+		const hashedPassword = this.authService.hashPassword(newPassword);
+		UserEntity.password = hashedPassword;
+		UserEntity.passwordChangeAt = new Date();
+		await this.userRepository.save(UserEntity);
+
 		return { message: PublicMessage.Updated };
 	}
 	async changeEmail(email: string) {

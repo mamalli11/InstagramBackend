@@ -30,6 +30,7 @@ import { CookieKeys } from "src/common/enums/cookie.enum";
 import { FollowRequestDto } from "./dto/followRequest.dto";
 import { multerStorage } from "src/common/utils/multer.util";
 import { PublicMessage } from "src/common/enums/message.enum";
+import { ChangePasswordDto } from "./dto/change-password.dto";
 import { PaginationDto } from "src/common/dtos/pagination.dto";
 import { CookiesOptionsToken } from "src/common/utils/cookie.util";
 import { Pagination } from "src/common/decorators/pagination.decorator";
@@ -118,6 +119,12 @@ export class UserController {
 	@ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
 	async changeUsername(@Body() usernameDto: ChangeUsernameDto) {
 		return this.userService.changeUsername(usernameDto.username);
+	}
+
+	@Patch("/change-password")
+	@ApiConsumes(SwaggerConsumes.UrlEncoded, SwaggerConsumes.Json)
+	async changePassword(@Body() changePasswordDto: ChangePasswordDto) {
+		return this.userService.changePassword(changePasswordDto);
 	}
 
 	@Get("/userProfile/:username")

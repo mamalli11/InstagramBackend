@@ -1,10 +1,10 @@
 import {
-	Column,
-	CreateDateColumn,
 	Entity,
-	JoinColumn,
-	OneToMany,
+	Column,
 	OneToOne,
+	OneToMany,
+	JoinColumn,
+	CreateDateColumn,
 	UpdateDateColumn,
 } from "typeorm";
 
@@ -47,6 +47,9 @@ export class UserEntity extends BaseEntity {
 
 	@Column({ select: false })
 	password: string;
+
+	@Column({ nullable: true })
+	passwordChangeAt: Date;
 
 	@Column({ default: false })
 	is_private: boolean;

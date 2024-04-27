@@ -21,6 +21,9 @@ import { PostLikeEntity } from "src/modules/post/entities/postLike.entity";
 import { PostCommentEntity } from "src/modules/post/entities/comment.entity";
 import { PostBookmarkEntity } from "src/modules/post/entities/bookmark.entity";
 import { PostCommentLikeEntity } from "src/modules/post/entities/postCommentLike.entity";
+import { StoryLikeEntity } from "src/modules/story/entities/story-like.entity";
+import { StoryCommentEntity } from "src/modules/story/entities/story-comment.entity";
+import { StoryHighlightEntity } from "src/modules/story/entities/story-highlight.entity";
 
 @Entity(EntityName.User)
 export class UserEntity extends BaseEntity {
@@ -94,7 +97,16 @@ export class UserEntity extends BaseEntity {
 	StoryId: number;
 	@OneToMany(() => StoryEntity, (Story) => Story.user)
 	@JoinColumn({ name: "StoryId" })
-	stories: StoryEntity[];
+	storys: StoryEntity[];
+
+	@OneToMany(() => StoryLikeEntity, (like) => like.user)
+	story_likes: StoryLikeEntity[];
+
+	@OneToMany(() => StoryCommentEntity, (comment) => comment.user)
+	story_comments: StoryCommentEntity[];
+
+	@OneToMany(() => StoryHighlightEntity, (highlight) => highlight.user)
+	story_highlights: StoryHighlightEntity[];
 
 	@OneToMany(() => FollowEntity, (follow) => follow.following)
 	followers: FollowEntity[];

@@ -23,4 +23,5 @@ export class StoryService {
   remove(id: number) {
     return `This action removes a #${id} story`;
   }
+  
 }

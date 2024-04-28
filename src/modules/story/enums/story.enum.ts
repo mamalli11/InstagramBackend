@@ -4,6 +4,7 @@ export enum StoryType {
 }
 
 export enum StoryStatus {
+	Deleted = "deleted",
 	Published = "published",
 	CloseFriend = "closefriend",
 }

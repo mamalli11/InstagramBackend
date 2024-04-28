@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, OneToMany, OneToOne } from "typeorm";
+import { Column, CreateDateColumn, Entity, ManyToOne, OneToOne } from "typeorm";
 
 import { StoryEntity } from "./story.entity";
 import { EntityName } from "src/common/enums/entity.enum";
@@ -14,7 +14,7 @@ export class StoryReactionEntity extends BaseEntity {
 
 	@Column()
 	storyId: number;
-	@OneToOne(() => StoryEntity, (story) => story.reactions, { onDelete: "CASCADE" })
+	@ManyToOne(() => StoryEntity, (story) => story.reactions, { onDelete: "CASCADE" })
 	story: StoryEntity[];
 
 	@Column({ type: "enum", enum: ["like", "heart", "fire", "laugh", "sad", "wow"] })

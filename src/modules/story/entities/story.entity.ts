@@ -2,11 +2,11 @@ import {
 	Entity,
 	Column,
 	ManyToOne,
+	AfterLoad,
 	OneToMany,
 	ManyToMany,
 	JoinColumn,
 	CreateDateColumn,
-	AfterLoad,
 } from "typeorm";
 
 import { StoryLikeEntity } from "./story-like.entity";
@@ -56,12 +56,6 @@ export class StoryEntity extends BaseEntity {
 
 	@Column({ default: true })
 	isComment: boolean;
-
-	@Column({ default: 0 })
-	views: number;
-
-	@Column({ default: 0 })
-	likes: number;
 
 	@CreateDateColumn()
 	created_at: Date;

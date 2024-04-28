@@ -6,6 +6,7 @@ import {
 	ManyToMany,
 	JoinColumn,
 	CreateDateColumn,
+	AfterLoad,
 } from "typeorm";
 
 import { StoryLikeEntity } from "./story-like.entity";
@@ -79,4 +80,10 @@ export class StoryEntity extends BaseEntity {
 
 	@OneToMany(() => StoryReactionEntity, (reaction) => reaction.story)
 	reactions: StoryReactionEntity[];
+
+	@AfterLoad()
+	map() {
+		const url = this.mediaUrl.replaceAll("\\", "/");
+		this.mediaUrl = `${process.env.URL}/${url}`;
+	}
 }

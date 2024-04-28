@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, ManyToOne, UpdateDateColumn } from "typeorm";
+import { AfterLoad, Column, CreateDateColumn, Entity, ManyToOne, UpdateDateColumn } from "typeorm";
 
 import { PostEntity } from "./post.entity";
 import { EntityName } from "src/common/enums/entity.enum";
@@ -22,4 +22,10 @@ export class MediaEntity extends BaseEntity {
 
 	@UpdateDateColumn()
 	updated_at: Date;
+
+	@AfterLoad()
+	map() {
+		const URL = this.url.replaceAll("\\", "/");
+		this.url = `${process.env.URL}/${URL}`;
+	}
 }

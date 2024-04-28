@@ -17,7 +17,7 @@ export class StoryLikeEntity extends BaseEntity {
 	@JoinColumn({ name: "userId" })
 	user: UserEntity;
 
-	@ManyToOne(() => StoryEntity, (story) => story.likesDetails, { onDelete: "CASCADE" })
+	@ManyToOne(() => StoryEntity, (story) => story.likesStory, { onDelete: "CASCADE" })
 	@JoinColumn({ name: "storyId" })
 	story: StoryEntity;
 

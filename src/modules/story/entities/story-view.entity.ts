@@ -17,7 +17,7 @@ export class StoryViewEntity extends BaseEntity {
 	@JoinColumn({ name: "userId" })
 	user: UserEntity;
 
-	@ManyToOne(() => StoryEntity, (story) => story.viewsDetails, { onDelete: "CASCADE" })
+	@ManyToOne(() => StoryEntity, (story) => story.viewsStory, { onDelete: "CASCADE" })
 	@JoinColumn({ name: "storyId" })
 	story: StoryEntity;
 

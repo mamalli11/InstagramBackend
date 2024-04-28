@@ -20,9 +20,9 @@ import { StoryEntity } from "src/modules/story/entities/story.entity";
 import { PostLikeEntity } from "src/modules/post/entities/postLike.entity";
 import { PostCommentEntity } from "src/modules/post/entities/comment.entity";
 import { PostBookmarkEntity } from "src/modules/post/entities/bookmark.entity";
-import { PostCommentLikeEntity } from "src/modules/post/entities/postCommentLike.entity";
 import { StoryLikeEntity } from "src/modules/story/entities/story-like.entity";
 import { StoryCommentEntity } from "src/modules/story/entities/story-comment.entity";
+import { PostCommentLikeEntity } from "src/modules/post/entities/postCommentLike.entity";
 import { StoryHighlightEntity } from "src/modules/story/entities/story-highlight.entity";
 
 @Entity(EntityName.User)
@@ -62,6 +62,12 @@ export class UserEntity extends BaseEntity {
 
 	@Column({ default: true })
 	is_otp: boolean;
+
+	@Column({ default: true })
+	is_Post_Comment: boolean;
+	
+	@Column({ default: true })
+	is_Story_Comment: boolean;
 
 	@Column({ nullable: true })
 	otpId: number;

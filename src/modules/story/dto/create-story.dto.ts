@@ -1,22 +1,18 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { StoryStatus, StoryType } from "../enums/story.enum";
-import { IsEnum, IsOptional, IsString, Length } from "class-validator";
+import { IsBooleanString, IsEnum, IsOptional, IsString, Length } from "class-validator";
 
 export class CreateStoryDto {
 	@ApiProperty({ enum: StoryType })
 	@IsEnum(StoryType)
-	type: StoryType;
+	mediaType: StoryType;
 
 	@ApiProperty({ enum: StoryStatus })
 	@IsEnum(StoryStatus)
 	storyStatus: StoryStatus;
 
 	@ApiProperty({ format: "binary" })
-	mediaUrl: string;
-
-	@ApiProperty({ enum: ["image", "video"], default: "image" })
-	@IsEnum(["image", "video"])
-	mediaType: string;
+	media: string;
 
 	@ApiPropertyOptional({ description: "max Length 300" })
 	@IsOptional()
@@ -24,18 +20,19 @@ export class CreateStoryDto {
 	@IsString()
 	caption: string;
 
-	@ApiPropertyOptional()
+	@ApiPropertyOptional({ type: "string", isArray: true })
 	@IsOptional()
-	@IsString()
-	location: string;
+	location: string[];
 
-	@ApiPropertyOptional()
+	@ApiPropertyOptional({ type: "string", isArray: true })
 	@IsOptional()
-	@IsString()
-	tags: string;
+	tags: string[];
 
-	@ApiPropertyOptional()
+	@ApiPropertyOptional({ type: "string", isArray: true })
 	@IsOptional()
-	@IsString()
-	mention: string;
+	mention: string[];
+
+	@ApiProperty({ default: true })
+	@IsBooleanString()
+	isComment: boolean;
 }

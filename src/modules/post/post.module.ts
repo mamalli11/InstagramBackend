@@ -31,5 +31,6 @@ import { PostCommentLikeEntity } from "./entities/postCommentLike.entity";
 	],
 	controllers: [PostController, PostCommentController],
 	providers: [PostService, PostCommentService],
+	exports: [PostService, PostCommentService],
 })
 export class PostModule {}

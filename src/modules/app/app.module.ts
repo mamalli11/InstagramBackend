@@ -20,8 +20,8 @@ import { HashtagModule } from "../hashtag/hashtag.module";
 		AuthModule,
 		UserModule,
 		PostModule,
+		StoryModule,
 		HashtagModule,
-		// StoryModule
 	],
 	controllers: [],
 	providers: [],

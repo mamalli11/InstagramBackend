@@ -1,13 +1,13 @@
 import { Repository } from "typeorm";
-import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
+import { Injectable, NotFoundException } from "@nestjs/common";
 
+import { FilterHashtagsDto } from "./dto/filter.dto";
 import { EntityName } from "src/common/enums/entity.enum";
 import { HashtagEntity } from "./entities/hashtag.entity";
 import { PaginationDto } from "src/common/dtos/pagination.dto";
-import { paginationGenerator, paginationSolver } from "src/common/utils/pagination.util";
-import { FilterHashtagsDto } from "./dto/filter.dto";
 import { NotFoundMessage, PublicMessage } from "src/common/enums/message.enum";
+import { paginationGenerator, paginationSolver } from "src/common/utils/pagination.util";
 
 @Injectable()
 export class HashtagService {
@@ -16,6 +16,7 @@ export class HashtagService {
 	) {}
 
 	async createHashTag(text: string) {
+		if (!text) return text;
 		const hashtag = this.findHashtags(text);
 		if (hashtag) {
 			hashtag.map(async (name) => {

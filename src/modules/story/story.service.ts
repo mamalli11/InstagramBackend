@@ -1,6 +1,6 @@
 import { Request } from "express";
-import { Not, Repository } from "typeorm";
 import { REQUEST } from "@nestjs/core";
+import { Not, Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
 import { ForbiddenException, Inject, Injectable, NotFoundException, Scope } from "@nestjs/common";
 
@@ -12,10 +12,10 @@ import { UserEntity } from "../user/entities/user.entity";
 import { PostService } from "../post/services/post.service";
 import { HashtagService } from "../hashtag/hashtag.service";
 import { StoryLikeEntity } from "./entities/story-like.entity";
-import { AuthMessage, NotFoundMessage, PublicMessage } from "src/common/enums/message.enum";
+import { StoryViewEntity } from "./entities/story-view.entity";
 import { CreateCommentStoryDto } from "./dto/comment-story.dto";
 import { StoryCommentEntity } from "./entities/story-comment.entity";
-import { StoryViewEntity } from "./entities/story-view.entity";
+import { AuthMessage, NotFoundMessage, PublicMessage } from "src/common/enums/message.enum";
 
 @Injectable({ scope: Scope.REQUEST })
 export class StoryService {
@@ -27,6 +27,7 @@ export class StoryService {
 		@InjectRepository(StoryCommentEntity)
 		private storyCommentRepository: Repository<StoryCommentEntity>,
 		@Inject(REQUEST) private request: Request,
+
 		private hashtagService: HashtagService,
 		private postService: PostService,
 	) {}
@@ -41,7 +42,7 @@ export class StoryService {
 		const { caption, location, media, mediaType, mention, storyStatus, tags, isComment } =
 			createStoryDto;
 
-		let story = await this.storyRepository.insert({
+		let story = await this.storyRepository.save({
 			userId,
 			mediaType,
 			storyStatus,
@@ -52,7 +53,7 @@ export class StoryService {
 			isComment: isComment.toString() === "true" ? true : false,
 			caption: await this.hashtagService.createHashTag(caption),
 		});
-
+		await this.storyRepository.save(story);
 		return { message: PublicMessage.Created, story };
 	}
 
@@ -111,7 +112,7 @@ export class StoryService {
 		const { id: userId } = this.request.user;
 		const { text, storyId } = createCommentStoryDto;
 
-		await this.postService.checkExistPostById(storyId);
+		await this.checkExistStoryById(storyId);
 		await this.storyCommentRepository.insert({
 			userId,
 			storyId,

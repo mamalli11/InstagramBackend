@@ -24,8 +24,8 @@
 
 -  [About](#about)
 -  [Getting Started](#getting_started)
--  [Deployment](#deployment)
 -  [Usage](#usage)
+-  [Deployment](#deployment)
 -  [Built Using](#built_using)
 -  [Authors](#authors)
 -  [Acknowledgments](#acknowledgement)
@@ -51,7 +51,7 @@ running for testing and development purposes.
 
 You'll need the following software installed:
 
--  Node.js (version 14 or later)
+-  Node.js (version 20 or later)
 -  PostgreSQL
 -  NestJS
 -  Git
@@ -61,13 +61,13 @@ You'll need the following software installed:
 Clone the repository:
 
 ```bash
-git clone https://github.com/mamalli11/InstaBackend.git
+git clone https://github.com/mamalli11/InstagramBackend.git
 ```
 
 Navigate into the project directory:
 
 ```bash
-cd InstaBackend
+cd InstagramBackend
 ```
 
 Install dependencies:
@@ -87,7 +87,7 @@ npm run start:dev
 
 ## 🎈 Usage <a name="usage"></a>
 
-Once the backend is running, Swagger documentation is available at `/api/docs`, which provides
+Once the backend is running, Swagger documentation is available at `/swagger`, which provides
 detailed descriptions of all available API endpoints, such as user registration, post creation, and
 interaction features.
 

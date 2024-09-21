@@ -1,73 +1,120 @@
 <p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://cdn-icons-png.flaticon.com/512/8983/8983087.png" width="200" alt="Nest Logo" /></a>
+  <a href="https://github.com/mamalli11/InstaBackend" rel="noopener">
+    <img width=200px height=200px src="https://cdn-icons-png.flaticon.com/512/8983/8983087.png" alt="Project logo"></a>
 </p>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+<h3 align="center">InstaBackend</h3>
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
+<div align="center">
+
+[![Status](https://img.shields.io/badge/status-active-success.svg)]()
+[![GitHub Issues](https://img.shields.io/github/issues/mamalli11/InstaBackend.svg)](https://github.com/mamalli11/InstaBackend/issues)
+[![GitHub Pull Requests](https://img.shields.io/github/issues-pr/mamalli11/InstaBackend.svg)](https://github.com/mamalli11/InstaBackend/pulls)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](/LICENSE)
+
+</div>
+
+---
+
+<p align="center">A feature-rich backend for an Instagram-like social media platform built with NestJS and PostgreSQL.
+    <br> 
 </p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
-## Description
-Instagram clone with most features.</br>
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## 📝 Table of Contents
 
-## Installation
+-  [About](#about)
+-  [Getting Started](#getting_started)
+-  [Deployment](#deployment)
+-  [Usage](#usage)
+-  [Built Using](#built_using)
+-  [Authors](#authors)
+-  [Acknowledgments](#acknowledgement)
+
+## 🧐 About <a name = "about"></a>
+
+InstaBackend is a scalable backend API for a social media platform modeled after Instagram. It
+includes essential features such as user registration, post management, and interaction
+functionalities like comments, likes, and following. Built with NestJS, PostgreSQL, and Swagger for
+API documentation, this project aims to mimic the core functionalities of Instagram while allowing
+further extensibility.
+
+The main focus of this project is to offer a fully functional backend where users can register,
+follow each other, create and manage posts and stories, like content, and much more. Future updates
+will bring additional features to enhance the social experience.
+
+## 🏁 Getting Started <a name = "getting_started"></a>
+
+These instructions will help you set up a local development environment and get the backend up and
+running for testing and development purposes.
+
+### Prerequisites
+
+You'll need the following software installed:
+
+-  Node.js (version 14 or later)
+-  PostgreSQL
+-  NestJS
+-  Git
+
+### Installing
+
+Clone the repository:
 
 ```bash
-$ npm install
+git clone https://github.com/mamalli11/InstaBackend.git
 ```
 
-## Running the app
+Navigate into the project directory:
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+cd InstaBackend
 ```
 
-## Test
+Install dependencies:
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npm install
 ```
 
-## Support
+Set up your PostgreSQL database and update the environment variables in the `.env` file with your
+database credentials.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+Run the application:
 
-## Stay in touch
+```bash
+npm run start:dev
+```
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+## 🎈 Usage <a name="usage"></a>
 
-## License
+Once the backend is running, Swagger documentation is available at `/api/docs`, which provides
+detailed descriptions of all available API endpoints, such as user registration, post creation, and
+interaction features.
 
-Nest is [MIT licensed](LICENSE).
+## 🚀 Deployment <a name = "deployment"></a>
+
+For deployment to a live system, configure your production environment and run:
+
+```bash
+npm run build
+npm run start:prod
+```
+
+You can deploy using Docker as well. Make sure to set up your PostgreSQL instance and update the
+`.env` variables accordingly.
+
+## ⛏️ Built Using <a name = "built_using"></a>
+
+-  [NestJS](https://nestjs.com/) - Server Framework
+-  [PostgreSQL](https://www.postgresql.org/) - Database
+-  [Swagger](https://swagger.io/) - API Documentation
+-  [Node.js](https://nodejs.org/) - Server Environment
+
+## ✍️ Authors <a name = "authors"></a>
+
+-  [@mamalli11](https://github.com/mamalli11) - Initial work
+
+## 🎉 Acknowledgements <a name = "acknowledgement"></a>
+
+-  Thanks to the NestJS community for the resources and support
+-  Inspired by the core functionalities of Instagram
